@@ -1,12 +1,11 @@
-# Bernd's Biscuits
-### A Digital Advent Calendar for 2022
-Bernd needs your help as a new factory manager. Position the right machines in the right spots on the factory conveyor belts to transform ingredients and to fulfill the cookie recipes of the day.
+# Project Applegrap
+### Commission for the Secret Santa Jam 2022
+Not sure what it's gonna be like. The giftee wants something:
+* With action
+* A new mechanic you have to experiment with
+* Colorful
 
-Deployed via Github Pages on: [AdventCalendar2022](https://joscco.github.io/AdventCalendar2022/)
-### Non-self-made Resources:
-
-#### Fonts:
-* Futura Handwritten by Billy Snyder
+Deployed via Github Pages on [here](https://joscco.github.io/secret-santa-jam-2022/)
 
 #### Frameworks:
 * Pixi.js for managing the whole canvas stuff
