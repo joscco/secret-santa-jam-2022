@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        // DO NOT EDIT
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": true,
+        "module": "CommonJS",
+        "target": "ES2015",
+        "outDir": "./dist",
+        "sourceMap": true,
+        "experimentalDecorators": true,
+        "strict": true
+    }
+}
