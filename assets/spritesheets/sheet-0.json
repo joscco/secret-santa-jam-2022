@@ -1,0 +1,172 @@
+{"frames": {
+
+"gameScreen/flameEnemy":
+{
+	"frame": {"x":4,"y":4,"w":86,"h":110},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":86,"h":110},
+	"sourceSize": {"w":86,"h":110}
+},
+"gameScreen/floorDecoration/floor_0":
+{
+	"frame": {"x":426,"y":85,"w":38,"h":61},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":38,"h":61},
+	"sourceSize": {"w":38,"h":61}
+},
+"gameScreen/floorDecoration/floor_1":
+{
+	"frame": {"x":491,"y":73,"w":42,"h":50},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":42,"h":50},
+	"sourceSize": {"w":42,"h":50}
+},
+"gameScreen/floorDecoration/floor_2":
+{
+	"frame": {"x":381,"y":85,"w":41,"h":39},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":41,"h":39},
+	"sourceSize": {"w":41,"h":39}
+},
+"gameScreen/floorDecoration/floor_3":
+{
+	"frame": {"x":634,"y":66,"w":24,"h":47},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":24,"h":47},
+	"sourceSize": {"w":24,"h":47}
+},
+"gameScreen/floorDecoration/floor_4":
+{
+	"frame": {"x":587,"y":66,"w":55,"h":43},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":55,"h":43},
+	"sourceSize": {"w":55,"h":43}
+},
+"gameScreen/floorDecoration/floor_5":
+{
+	"frame": {"x":335,"y":95,"w":12,"h":29},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":12,"h":29},
+	"sourceSize": {"w":12,"h":29}
+},
+"gameScreen/floorDecoration/floor_6":
+{
+	"frame": {"x":677,"y":66,"w":28,"h":26},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":28,"h":26},
+	"sourceSize": {"w":28,"h":26}
+},
+"gameScreen/floorDecoration/floor_7":
+{
+	"frame": {"x":457,"y":4,"w":56,"h":65},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":56,"h":65},
+	"sourceSize": {"w":56,"h":65}
+},
+"gameScreen/floorDecoration/floor_8":
+{
+	"frame": {"x":300,"y":95,"w":31,"h":29},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":31,"h":29},
+	"sourceSize": {"w":31,"h":29}
+},
+"gameScreen/hookPillar":
+{
+	"frame": {"x":94,"y":4,"w":47,"h":109},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":47,"h":109},
+	"sourceSize": {"w":47,"h":109}
+},
+"gameScreen/player/playerBody":
+{
+	"frame": {"x":297,"y":4,"w":79,"h":87},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":79,"h":87},
+	"sourceSize": {"w":79,"h":87}
+},
+"gameScreen/player/playerGun":
+{
+	"frame": {"x":145,"y":4,"w":106,"h":49},
+	"rotated": true,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":106,"h":49},
+	"sourceSize": {"w":106,"h":49}
+},
+"gameScreen/player/playerHook":
+{
+	"frame": {"x":537,"y":66,"w":46,"h":57},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":46,"h":57},
+	"sourceSize": {"w":46,"h":57}
+},
+"gameScreen/player/playerLeg":
+{
+	"frame": {"x":662,"y":66,"w":11,"h":43},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":11,"h":43},
+	"sourceSize": {"w":11,"h":43}
+},
+"gameScreen/player/playerRope":
+{
+	"frame": {"x":145,"y":114,"w":151,"h":10},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":151,"h":10},
+	"sourceSize": {"w":151,"h":10}
+},
+"gameScreen/star":
+{
+	"frame": {"x":380,"y":4,"w":73,"h":77},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":73,"h":77},
+	"sourceSize": {"w":73,"h":77}
+},
+"gameScreen/stoneEnemy":
+{
+	"frame": {"x":198,"y":4,"w":95,"h":104},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":95,"h":104},
+	"sourceSize": {"w":95,"h":104}
+},
+"gameScreen/tooltip/tooltipRect":
+{
+	"frame": {"x":517,"y":4,"w":175,"h":58},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":175,"h":58},
+	"sourceSize": {"w":175,"h":58}
+},
+"gameScreen/tooltip/tooltipTriangle":
+{
+	"frame": {"x":351,"y":95,"w":26,"h":28},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":26,"h":28},
+	"sourceSize": {"w":26,"h":28}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "sheet-0.png",
+	"format": "RGBA8888",
+	"size": {"w":707,"h":128},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:0c733ab79bc58b809979a1b045d882da:d5122ca21851c382196b877ee725973a:61cb8e7f5ab596884c5d2a520fb1e10a$"
+}
+}
