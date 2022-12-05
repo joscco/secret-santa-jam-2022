@@ -60,7 +60,7 @@ const main = async () => {
     let dirty: boolean = true
     var ticker = new Ticker();
     ticker.add(() => {
-        Tweener.update(ticker.elapsedMS)
+        Tweener.update()
         // if (dirty) {
             dirty = false
             renderer.render(stage);

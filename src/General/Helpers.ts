@@ -44,6 +44,14 @@ export function quadVectorDistance(a: Vector2D, b: Vector2D): number {
     return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)
 }
 
+export function vectorDistance(a: Vector2D, b: Vector2D): number {
+    return Math.sqrt(quadVectorDistance(a, b))
+}
+
+export function quadVectorLength(direction: Vector2D) {
+    return quadVectorDistance({x: 0, y: 0}, direction)
+}
+
 export function clampAndRound(value: number, min: number, max: number): number {
     return Math.round(clamp(value, min, max));
 }
@@ -73,6 +81,31 @@ export function vectorAdd(a: Vector2D, b: Vector2D): Vector2D {
     return {x: a.x + b.x, y: a.y + b.y}
 }
 
+export function vectorSub(a: Vector2D, b: Vector2D): Vector2D {
+    return {x: a.x - b.x, y: a.y - b.y}
+}
+
 export function indexAdd(a: Index2D, b: Index2D): Index2D {
     return {row: a.row + b.row, column: a.column + b.column}
+}
+
+export function vectorMultiply(scalar: number, v: Vector2D) {
+    return {x: v.x * scalar, y: v.y * scalar};
+}
+
+export function limit(v: Vector2D): Vector2D {
+    if (v.x === 0 && v.y === 0) {
+        return v
+    }
+
+    let dist = quadVectorDistance({x: 0, y: 0}, v)
+    return vectorMultiply(Math.min(1, 1 / Math.sqrt(dist)), v)
+}
+
+export function vectorLerp(vec1: Vector2D, vec2: Vector2D, amount: number) {
+    return {x: lerp(vec1.x, vec2.x, amount), y: lerp(vec1.y, vec2.y, amount)}
+}
+
+export function lerp(value: number, to: number, amount: number) {
+    return value + amount * (to - value);
 }

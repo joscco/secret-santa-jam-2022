@@ -53,7 +53,10 @@ export class AssetManager {
 const TEXTURE_MANIFEST = {
     // player
     playerBody: "gameScreen/player/playerBody",
-    playerLeg: "gameScreen/player/playerLeg"
+    playerLeg: "gameScreen/player/playerLeg",
+    playerGun: "gameScreen/player/playerGun",
+    gunRope: "gameScreen/player/playerRope",
+    gunHook: "gameScreen/player/playerHook"
 } as const
 
 export type TextureAssetID = keyof typeof TEXTURE_MANIFEST

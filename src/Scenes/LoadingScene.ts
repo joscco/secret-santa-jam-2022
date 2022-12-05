@@ -25,11 +25,11 @@ export class LoadingScene extends Scene {
     }
 
     private async blendInLoadingText() {
-        await new Promise((resolve, reject) => Tweener.of(this.loadingText.scale)
+        await Tweener.of(this.loadingText.scale)
             .to({x: 1, y: 1}, 300)
             .easing(Easing.Back.InOut)
-            .onComplete(resolve)
-            .start())
+            .start()
+            .promise()
     }
 
     setProgress(percent: number) {
