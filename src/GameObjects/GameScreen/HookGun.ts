@@ -1,10 +1,11 @@
 import {Container, Sprite} from "pixi.js";
-import {Vector2D, vectorSub} from "../../General/Helpers";
+import {harmonizeAngle, lerpAbs, Vector2D, vectorSub} from "../../General/Helpers";
 import {ASSET_MANAGER} from "../../index";
 
 export class HookGun extends Container {
 
     gunSprite: Sprite
+    ROTATION_SPEED = 0.01
 
     constructor() {
         super();
@@ -14,11 +15,10 @@ export class HookGun extends Container {
         this.addChild(this.gunSprite)
     }
 
-    rotateTowards(point: Vector2D) {
+    rotateTowards(point: Vector2D, delta: number) {
         let direction = vectorSub(point, this.getGlobalPosition())
-        let scale = direction.x > 0 ? 1 : -1
-        let rotation = Math.atan2(Math.sign(direction.x) * direction.y, Math.max(50, Math.abs(direction.x)))
-        this.gunSprite.scale.x = scale
-        this.gunSprite.rotation = rotation
+        let desiredRotation = Math.atan2(direction.y, direction.x)
+        let harmonizedGunRotation = harmonizeAngle(desiredRotation, this.gunSprite.rotation)
+        this.gunSprite.rotation = lerpAbs(this.gunSprite.rotation, harmonizedGunRotation, this.ROTATION_SPEED * delta)
     }
 }

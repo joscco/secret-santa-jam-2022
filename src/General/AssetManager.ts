@@ -52,6 +52,7 @@ export class AssetManager {
 
 const TEXTURE_MANIFEST = {
     // player
+    field: "gameScreen/playerField",
     playerBody: "gameScreen/player/playerBody",
     playerLeg: "gameScreen/player/playerLeg",
     playerGun: "gameScreen/player/playerGun",

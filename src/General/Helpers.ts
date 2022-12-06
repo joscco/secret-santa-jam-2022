@@ -16,7 +16,7 @@ export function getVerticalDirectionForIndices(from: Index2D, to: Index2D): Vert
     let verticalDiff = to.row - from.row;
     if (verticalDiff > 0) {
         return "DOWN"
-    } else if(verticalDiff < 0) {
+    } else if (verticalDiff < 0) {
         return "UP"
     }
     return "NONE"
@@ -93,13 +93,14 @@ export function vectorMultiply(scalar: number, v: Vector2D) {
     return {x: v.x * scalar, y: v.y * scalar};
 }
 
-export function limit(v: Vector2D): Vector2D {
+export function limit(v: Vector2D, length: number): Vector2D {
     if (v.x === 0 && v.y === 0) {
         return v
     }
 
-    let dist = quadVectorDistance({x: 0, y: 0}, v)
-    return vectorMultiply(Math.min(1, 1 / Math.sqrt(dist)), v)
+    let dist = vectorDistance({x: 0, y: 0}, v)
+    let sanitizedDist = Math.max(0.01, dist)
+    return vectorMultiply(Math.min(length, length / sanitizedDist), v)
 }
 
 export function vectorLerp(vec1: Vector2D, vec2: Vector2D, amount: number) {
@@ -108,4 +109,27 @@ export function vectorLerp(vec1: Vector2D, vec2: Vector2D, amount: number) {
 
 export function lerp(value: number, to: number, amount: number) {
     return value + amount * (to - value);
+}
+
+export function lerpAbs(value: number, to: number, amount: number) {
+    return clamp(to, value - amount, value + amount);
+}
+
+export function harmonizeAngle(angle: number, other: number) {
+    if (Math.abs(angle - other) <= Math.PI) {
+        return angle
+    }
+    return other + smallestMod(angle - other, 2 * Math.PI)
+}
+
+export function positiveMod(x: number, n: number) {
+    return ((x % n) + n) % n;
+}
+
+export function smallestMod(x: number, n: number) {
+    let preResult = x % n
+    if (Math.abs(preResult) > n / 2) {
+        return preResult - n * Math.sign(preResult)
+    }
+    return preResult
 }
