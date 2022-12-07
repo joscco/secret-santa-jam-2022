@@ -13,7 +13,7 @@ import {LanguageManager} from "./General/LanguageManager";
 import Tweener from "./General/Tweener";
 import {StartScene} from "./Scenes/StartScene";
 
-export const GAME_WIDTH: number = 1080;
+export const GAME_WIDTH: number = 1920;
 export const GAME_HEIGHT: number = 1080;
 
 export var App: CustomApp;
@@ -61,10 +61,8 @@ const main = async () => {
     var ticker = new Ticker();
     ticker.add(() => {
         Tweener.update()
-        // if (dirty) {
             dirty = false
             renderer.render(stage);
-        // }
     });
 
     App = {stage: stage, ticker: ticker, renderer: renderer, registerChange: () => dirty = true}

@@ -3,7 +3,7 @@ import {CustomApp, GAME_HEIGHT, GAME_WIDTH} from "../index";
 import Scene from "./Basics/Scene";
 import Tweener from "../General/Tweener";
 import {Easing} from "@tweenjs/tween.js";
-import {GameField} from "../GameObjects/GameScreen/GameField";
+import {GameField} from "../GameObjects/GameScreen/GameField/GameField";
 
 export class StartScene extends Scene {
 

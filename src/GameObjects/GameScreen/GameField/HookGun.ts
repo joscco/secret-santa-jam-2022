@@ -1,6 +1,6 @@
 import {Container, Sprite} from "pixi.js";
-import {harmonizeAngle, lerpAbs, Vector2D, vectorSub} from "../../General/Helpers";
-import {ASSET_MANAGER} from "../../index";
+import {harmonizeAngle, lerpAbs, Vector2D, vectorSub} from "../../../General/Helpers";
+import {ASSET_MANAGER} from "../../../index";
 
 export class HookGun extends Container {
 

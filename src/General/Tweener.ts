@@ -1,4 +1,4 @@
-import {App, TWEEN} from "../index";
+import {TWEEN} from "../index";
 import {Tween} from "@tweenjs/tween.js";
 
 class Tweener {
@@ -8,9 +8,6 @@ class Tweener {
 
     of(target: any): Tween<any> {
         return new Tween(target)
-            .onUpdate(() => {
-                App.registerChange()
-            })
     }
 }
 

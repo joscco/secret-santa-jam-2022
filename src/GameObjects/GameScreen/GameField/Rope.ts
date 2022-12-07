@@ -1,7 +1,7 @@
 import {Graphics} from "pixi.js";
-import {Vector2D} from "../../General/Helpers";
+import {Vector2D} from "../../../General/Helpers";
 
-export class HookGunRope extends Graphics {
+export class Rope extends Graphics {
     update(pos1: Vector2D, pos2: Vector2D) {
         this.clear()
         this.lineStyle(10, 0x000)

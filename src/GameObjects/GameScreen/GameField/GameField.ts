@@ -2,17 +2,19 @@ import {Container, Sprite} from "pixi.js";
 import {Player} from "./Player";
 import {HookGun} from "./HookGun";
 import {Hook} from "./Hook";
-import {ASSET_MANAGER, GAME_HEIGHT, GAME_WIDTH} from "../../index";
-import {InputManager} from "../../General/InputManager";
-import {sleep, Vector2D} from "../../General/Helpers";
-import {HookGunRope} from "./HookGunRope";
+import {ASSET_MANAGER, GAME_HEIGHT, GAME_WIDTH} from "../../../index";
+import {InputManager} from "../../../General/InputManager";
+import {sleep, Vector2D} from "../../../General/Helpers";
+import {Rope} from "./Rope";
+import {PreviewRope} from "./PreviewRope";
 
 export class GameField extends Container {
 
     field: Sprite
     player: Player
     gun: HookGun
-    rope: HookGunRope
+    rope: Rope
+    previewRope: PreviewRope
     hook: Hook
 
     inputManager: InputManager
@@ -27,20 +29,23 @@ export class GameField extends Container {
         this.field.position.set(GAME_WIDTH / 2, GAME_HEIGHT / 2)
 
         this.player = new Player()
-        this.rope = new HookGunRope()
+        this.rope = new Rope()
+        this.previewRope = new PreviewRope()
         this.gun = new HookGun()
         this.hook = new Hook()
 
         this.inputManager = new InputManager()
         this.inputManager.initMouseControls(this.field, (pos) => this.onPointerTap(pos))
 
-        this.addChild(this.field, this.player, this.rope, this.gun, this.hook)
+        this.addChild(this.field, this.player, this.previewRope, this.rope, this.gun, this.hook)
     }
 
     update(delta: number) {
         this.inputManager.update()
         let mousePosition = this.inputManager.getMousePosition()
         let runningDirection = this.inputManager.getRunningDirection()
+
+        this.updatePreviewRope(mousePosition)
 
         if(!this.drawingToHook) {
             this.player.runTowards(delta, runningDirection)
@@ -64,13 +69,17 @@ export class GameField extends Container {
         this.rope.update(this.hook.position, this.gun.gunSprite.toGlobal({x: 100, y: 20}))
     }
 
+    updatePreviewRope(mousePosition: Vector2D) {
+        this.previewRope.update(this.gun.gunSprite.toGlobal({x: 100, y: 20}), mousePosition)
+    }
+
     private async onPointerTap(mousePosition: Vector2D) {
         if (!this.drawingToHook && !this.inHookShooting) {
             this.inHookShooting = true
             await this.hook.hookTo(mousePosition, () => this.updateRope())
             this.drawingToHook = true
             this.player.hookTo(this.hook, () => this.updateRope())
-            await sleep(200)
+            await sleep(400)
             this.drawingToHook = false
             this.rope.clear()
 

@@ -1,6 +1,6 @@
 import {Container, Sprite} from "pixi.js";
-import {ASSET_MANAGER} from "../../index";
-import {lerp, quadVectorLength, Vector2D} from "../../General/Helpers";
+import {ASSET_MANAGER} from "../../../index";
+import {lerp, quadVectorLength, Vector2D} from "../../../General/Helpers";
 
 export class PlayerRenderer extends Container {
     state: "RUNNING" | "IDLE" = "IDLE"
