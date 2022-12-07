@@ -5,7 +5,7 @@ import {ASSET_MANAGER} from "../../../index";
 export class HookGun extends Container {
 
     gunSprite: Sprite
-    ROTATION_SPEED = 0.01
+    ROTATION_SPEED = 0.02
 
     constructor() {
         super();

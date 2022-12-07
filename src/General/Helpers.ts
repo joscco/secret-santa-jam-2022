@@ -93,6 +93,10 @@ export function vectorMultiply(scalar: number, v: Vector2D) {
     return {x: v.x * scalar, y: v.y * scalar};
 }
 
+export function vectorDot(u: Vector2D, v: Vector2D): number {
+    return u.x * v.x + u.y * v.y;
+}
+
 export function limit(v: Vector2D, length: number): Vector2D {
     if (v.x === 0 && v.y === 0) {
         return v
@@ -101,6 +105,16 @@ export function limit(v: Vector2D, length: number): Vector2D {
     let dist = vectorDistance({x: 0, y: 0}, v)
     let sanitizedDist = Math.max(0.01, dist)
     return vectorMultiply(Math.min(length, length / sanitizedDist), v)
+}
+
+export function normalize(v: Vector2D): Vector2D{
+    if (v.x === 0 && v.y === 0) {
+        return v
+    }
+
+    let dist = vectorDistance({x: 0, y: 0}, v)
+    let sanitizedDist = Math.max(0.01, dist)
+    return vectorMultiply(1/ sanitizedDist, v)
 }
 
 export function vectorLerp(vec1: Vector2D, vec2: Vector2D, amount: number) {

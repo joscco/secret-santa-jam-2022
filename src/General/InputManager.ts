@@ -5,6 +5,7 @@ import {Sprite} from "pixi.js";
 export class InputManager {
     private clickableArea?: Sprite
     private mousePosition: Vector2D = {x: 0, y: 0}
+    private mouseDown: boolean = false
 
     private moveLeft: number = 0
     private moveRight: number = 0
@@ -36,13 +37,26 @@ export class InputManager {
         return this.mousePosition
     }
 
-    initMouseControls(area: Sprite, onPointerTap: (mousePos: Vector2D) => void) {
+    initMouseControls(area: Sprite, onPointerDown: ()=> void, onPointerUp: (mousePos: Vector2D) => void) {
         this.clickableArea = area
         this.clickableArea.interactive = true
 
-        this.clickableArea.on("pointertap", async (event) => {
+        this.clickableArea.on("pointerup", async (event) => {
+            this.mouseDown = false
             this.mousePosition = {x: event.data.global.x, y: event.data.global.y}
-            onPointerTap(this.mousePosition)
+            onPointerUp(this.mousePosition)
+        })
+
+        this.clickableArea.on("pointerupoutside", async (event) => {
+            this.mouseDown = false
+            this.mousePosition = {x: event.data.global.x, y: event.data.global.y}
+            onPointerUp(this.mousePosition)
+        })
+
+        this.clickableArea.on("pointerdown", async (event) => {
+            this.mouseDown = true
+            this.mousePosition = {x: event.data.global.x, y: event.data.global.y}
+            onPointerDown()
         })
 
         this.clickableArea.on("pointermove", (event) => {
@@ -64,5 +78,9 @@ export class InputManager {
         right.release = () => this.moveRight = 0;
         down.press = () => this.moveDown = 1;
         down.release = () => this.moveDown = 0;
+    }
+
+    isMouseDown(): boolean {
+        return this.mouseDown
     }
 }
