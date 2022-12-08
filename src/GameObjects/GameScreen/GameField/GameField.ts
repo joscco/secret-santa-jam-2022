@@ -9,7 +9,7 @@ import {
     quadVectorDistance,
     sleep,
     Vector2D,
-    vectorAdd,
+    vectorAdd, vectorDistance,
     vectorDot,
     vectorLerp,
     vectorMultiply,
@@ -166,8 +166,12 @@ export class GameField extends Container {
             }
         }
 
+        intersectionPoints = intersectionPoints
+            // Avoid reflection on same line
+            .filter(point => vectorDistance(point.point, start) > 1)
+            .sort((a, b) => vectorDistance(a.point, start) - vectorDistance(b.point, start))
+
         if (intersectionPoints.length !== 0) {
-            intersectionPoints.sort((a, b) => quadVectorDistance(a.point, start) - quadVectorDistance(b.point, start))
             let finalIntersection = intersectionPoints[0].point
             startPath.push(finalIntersection)
 
