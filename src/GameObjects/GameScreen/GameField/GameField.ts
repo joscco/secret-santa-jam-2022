@@ -9,6 +9,7 @@ import {
     quadVectorDistance,
     sleep,
     Vector2D,
+    vectorAdd,
     vectorDot,
     vectorLerp,
     vectorMultiply,
@@ -91,7 +92,10 @@ export class GameField extends Container {
     }
 
     updatePreviewRope(mousePosition: Vector2D) {
-        let linePath = this.reflectLine([this.gun.gunSprite.toGlobal({x: 100, y: 20})], this.gun.gunSprite.toGlobal({x: 100, y: 20}), mousePosition)
+        let linePath = this.reflectLine([this.gun.gunSprite.toGlobal({
+            x: 100,
+            y: 20
+        })], this.gun.gunSprite.toGlobal({x: 100, y: 20}), mousePosition)
         this.previewRope.update(linePath)
     }
 
@@ -139,8 +143,13 @@ export class GameField extends Container {
         return undefined
     }
 
-    private reflectLine(startPath: Vector2D[], start: Vector2D, end: Vector2D): Vector2D[] {
-        let intersectionPoints: { point: Vector2D, lineDirection: Vector2D}[] = []
+    private reflectLine(startPath: Vector2D[], start: Vector2D, end: Vector2D, maxReflections: number = 100): Vector2D[] {
+        if (maxReflections === 0) {
+            return [...startPath, end]
+        }
+
+        let intersectionPoints: { point: Vector2D, lineDirection: Vector2D }[] = []
+
         for (let poly of this.blockPolygons) {
             const length = poly.points.length / 2;
             for (let i = 0, j = length - 1; i < length; j = i++) {
@@ -163,7 +172,9 @@ export class GameField extends Container {
             startPath.push(finalIntersection)
 
             // Search for further reflections
-            startPath = this.reflectLine(startPath, finalIntersection, this.mirrorVector(vectorSub(finalIntersection, end), intersectionPoints[0].lineDirection))
+            let remainingRay = vectorSub(end, finalIntersection)
+            let mirroredRay = this.mirrorVector(remainingRay, intersectionPoints[0].lineDirection)
+            startPath = this.reflectLine(startPath, finalIntersection, vectorAdd(finalIntersection ,mirroredRay), maxReflections - 1)
         } else {
             startPath.push(end)
         }
@@ -173,6 +184,7 @@ export class GameField extends Container {
 
     private mirrorVector(vector: Vector2D, mirror: Vector2D): Vector2D {
         let normalizedMirror = normalize(mirror)
-        return vectorSub(vector, vectorMultiply(2*vectorDot(vector,normalizedMirror), normalizedMirror))
+        let negatedVector = vectorMultiply(-1, vector)
+        return vectorAdd(negatedVector, vectorMultiply(2 * vectorDot(vector, normalizedMirror), normalizedMirror))
     }
 }

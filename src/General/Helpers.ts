@@ -113,8 +113,8 @@ export function normalize(v: Vector2D): Vector2D{
     }
 
     let dist = vectorDistance({x: 0, y: 0}, v)
-    let sanitizedDist = Math.max(0.01, dist)
-    return vectorMultiply(1/ sanitizedDist, v)
+    let sanitizedDist = Math.max(0.001, dist)
+    return vectorMultiply(1 / sanitizedDist, v)
 }
 
 export function vectorLerp(vec1: Vector2D, vec2: Vector2D, amount: number) {

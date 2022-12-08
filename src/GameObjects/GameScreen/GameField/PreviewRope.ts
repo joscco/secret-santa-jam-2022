@@ -11,7 +11,7 @@ Graphics.prototype.drawDashedLine = function (x_0: number, y_0: number, x_1: num
     const startPosition = {x: x_0, y: y_0};
     const toPosition = {x: x_1, y: y_1};
     const distance = vectorDistance(startPosition, toPosition)
-    const relativeDashLength = dashLength/distance
+    const relativeDashLength = dashLength / distance
     const relativeGapLength = (1 - dashes * relativeDashLength) / (dashes - 1)
 
     for (let i = 0; i < dashes; i++) {
@@ -28,9 +28,10 @@ export class PreviewRope extends Graphics {
         this.lineStyle({
             width: 8,
             color: 0xffffff,
-            cap: LINE_CAP.ROUND})
-        for(let i = 0; i<path.length -1; i++) {
-            this.drawDashedLine(path[i].x, path[i].y, path[i+1].x, path[i+1].y)
+            cap: LINE_CAP.ROUND
+        })
+        for (let i = 0; i < path.length - 1; i++) {
+            this.drawDashedLine(path[i].x, path[i].y, path[i + 1].x, path[i + 1].y)
         }
     }
 }
