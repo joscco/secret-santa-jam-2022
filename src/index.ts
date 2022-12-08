@@ -13,6 +13,10 @@ import {LanguageManager} from "./General/LanguageManager";
 import Tweener from "./General/Tweener";
 import {StartScene} from "./Scenes/StartScene";
 
+// Type Change Imports
+import "./General/TypeChanges/Array"
+import "./General/TypeChanges/Graphics"
+
 export const GAME_WIDTH: number = 1920;
 export const GAME_HEIGHT: number = 1080;
 

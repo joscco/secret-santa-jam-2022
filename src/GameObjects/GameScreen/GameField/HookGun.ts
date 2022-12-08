@@ -6,12 +6,18 @@ export class HookGun extends Container {
 
     gunSprite: Sprite
     ROTATION_SPEED = 0.02
+    hookPoint: Container;
 
     constructor() {
         super();
 
         this.gunSprite = new Sprite(ASSET_MANAGER.getTextureAsset("playerGun"))
         this.gunSprite.pivot.set(20, 20)
+
+        this.hookPoint = new Container()
+        this.hookPoint.position.set(45, 10)
+        this.gunSprite.addChild(this.hookPoint)
+
         this.addChild(this.gunSprite)
     }
 

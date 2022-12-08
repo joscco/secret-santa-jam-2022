@@ -1,15 +1,16 @@
-import {Container, Graphics, Polygon, Sprite} from "pixi.js";
+import {Container, Graphics, LINE_JOIN, Polygon, Sprite} from "pixi.js";
 import {Player} from "./Player";
 import {HookGun} from "./HookGun";
 import {Hook} from "./Hook";
-import {ASSET_MANAGER, GAME_HEIGHT, GAME_WIDTH} from "../../../index";
+import {GAME_HEIGHT, GAME_WIDTH} from "../../../index";
 import {InputManager} from "../../../General/InputManager";
 import {
+    harmonizeAngle,
+    lerp,
     normalize,
-    quadVectorDistance,
-    sleep,
     Vector2D,
-    vectorAdd, vectorDistance,
+    vectorAdd,
+    vectorDistance,
     vectorDot,
     vectorLerp,
     vectorMultiply,
@@ -18,11 +19,16 @@ import {
 import {Rope} from "./Rope";
 import {PreviewRope} from "./PreviewRope";
 import Tweener from "../../../General/Tweener";
+import {Texture} from "@pixi/core";
+
+const PLAYER_HOOK_DURATION = 150
+const HOOK_HOOK_DURATION = 100
 
 export class GameField extends Container {
-    field: Sprite
+    field: Container
 
     blockPolygons: Polygon[]
+    linePath: Vector2D[] = []
 
     player: Player
     gun: HookGun
@@ -37,26 +43,37 @@ export class GameField extends Container {
 
     constructor() {
         super()
-        this.field = new Sprite(ASSET_MANAGER.getTextureAsset("field"))
-        this.field.anchor.set(0.5)
-        this.field.position.set(GAME_WIDTH / 2, GAME_HEIGHT / 2)
+        this.field = new Sprite(Texture.WHITE)
+        this.field.alpha = 0.1
+        this.field.width = GAME_WIDTH
+        this.field.height = GAME_HEIGHT
 
         this.player = new Player()
+        this.player.position.set(GAME_WIDTH / 2, GAME_HEIGHT / 2)
         this.rope = new Rope()
         this.previewRope = new PreviewRope()
         this.previewRope.alpha = 0
-        this.gun = new HookGun()
-        this.hook = new Hook()
 
-        this.blockPolygons = [new Polygon([20, 20, 800, 20, 800, 600, 20, 600]), new Polygon(300, 300, 300, 500, 500, 500)]
+        this.gun = new HookGun()
+        this.gun.position = this.player.position
+        this.hook = new Hook()
+        this.hook.position = this.gun.hookPoint.getGlobalPosition()
+
+
+        this.blockPolygons = [
+            new Polygon([200, 200, GAME_WIDTH - 200, 200, GAME_WIDTH - 200, GAME_HEIGHT - 200, 200, GAME_HEIGHT - 200]),
+            new Polygon(700, 600, GAME_WIDTH - 700, 600, GAME_WIDTH / 2, 800)]
         this.blockPolygons.forEach(poly => poly.closeStroke = true)
 
-        let fieldPolygonDrawer = new Graphics()
-            .lineStyle(20, 0x000fff)
+        let fieldPolygonDrawer = new Graphics().lineStyle({
+            width: 20,
+            color: 0x005500,
+            join: LINE_JOIN.ROUND
+        })
         this.blockPolygons.forEach(poly => fieldPolygonDrawer.drawPolygon(poly))
 
         this.inputManager = new InputManager()
-        this.inputManager.initMouseControls(this.field, () => this.onPointerDown(), (pos) => this.onPointerUp(pos))
+        this.inputManager.initMouseControls(this.field, () => this.onPointerDown(), () => this.onPointerUp())
 
         this.addChild(this.field, fieldPolygonDrawer, this.player, this.previewRope, this.rope, this.gun, this.hook)
     }
@@ -78,8 +95,9 @@ export class GameField extends Container {
                 this.updatePreviewRope(mousePosition)
             }
             this.hook.scale.x = this.gun.gunSprite.scale.x
-            this.hook.rotation = this.gun.gunSprite.rotation
-            this.hook.position = this.gun.gunSprite.toGlobal({x: 100, y: 20})
+            let harmonizedHookRotation = harmonizeAngle(this.gun.gunSprite.rotation, this.hook.rotation)
+            this.hook.rotation = lerp(this.hook.rotation, harmonizedHookRotation, 0.2)
+            this.hook.position = vectorLerp(this.hook.position, this.gun.hookPoint.getGlobalPosition(), 0.2)
         }
     }
 
@@ -87,16 +105,9 @@ export class GameField extends Container {
         this.gun.rotateTowards(mousePosition, delta)
     }
 
-    updateRope() {
-        this.rope.update(this.hook.position, this.gun.gunSprite.toGlobal({x: 100, y: 20}))
-    }
-
     updatePreviewRope(mousePosition: Vector2D) {
-        let linePath = this.reflectLine([this.gun.gunSprite.toGlobal({
-            x: 100,
-            y: 20
-        })], this.gun.gunSprite.toGlobal({x: 100, y: 20}), mousePosition)
-        this.previewRope.update(linePath)
+        this.linePath = this.reflectLine([this.gun.hookPoint.getGlobalPosition()], this.gun.hookPoint.getGlobalPosition(), mousePosition)
+        this.previewRope.update(this.linePath)
     }
 
     private async onPointerDown() {
@@ -104,20 +115,51 @@ export class GameField extends Container {
         Tweener.of(this.previewRope).to({alpha: 1}).duration(300).start()
     }
 
-    private async onPointerUp(mousePosition: Vector2D) {
+    private async onPointerUp() {
         Tweener.of(this.previewRope).to({alpha: 0}).duration(300).start()
         if (!this.drawingToHook && !this.inHookShooting) {
             this.inHookShooting = true
-            await this.hook.hookTo(mousePosition, () => this.updateRope())
+            await this.hookHookTo(this.linePath)
             this.drawingToHook = true
-            this.player.hookTo(this.hook, () => this.updateRope())
-            await sleep(400)
-            this.drawingToHook = false
+            await this.hookPlayerTo(this.linePath)
             this.rope.clear()
-
-            // Wait a small time so that the hook can rotate back
+            this.linePath = []
+            this.drawingToHook = false
             this.inHookShooting = false
         }
+    }
+
+    async hookHookTo(linePath: Vector2D[]) {
+        this.rope.addPoint(linePath[0])
+        for (let position of linePath.slice(1, linePath.length)) {
+            this.rope.addPoint(this.hook.position)
+            let segmentDirection = vectorSub(position, this.hook.position)
+            this.hook.rotation = Math.atan2(segmentDirection.y, segmentDirection.x)
+            await Tweener.of(this.hook.position)
+                .to({x: position.x, y: position.y})
+                .duration(HOOK_HOOK_DURATION)
+                .onUpdate(() => this.rope.setLast(this.hook.position))
+                .start()
+                .promise()
+        }
+    }
+
+    async hookPlayerTo(linePath: Vector2D[]): Promise<any> {
+        for (let pathPosition of linePath.slice(1)) {
+            let playerPositionBefore = this.player.position
+            let val = {x: 0}
+            await Tweener.of(val)
+                .to({x: 1})
+                .duration(PLAYER_HOOK_DURATION)
+                .onUpdate((object) => {
+                    this.player.position = vectorLerp(playerPositionBefore, pathPosition, object.x)
+                    this.rope.setFirstPoint(this.gun.hookPoint.getGlobalPosition())
+                })
+                .start()
+                .promise()
+            this.rope.dropFirstPoint()
+        }
+        this.rope.dropFirstPoint()
     }
 
     private findLineIntersection(start1: Vector2D, end1: Vector2D, start2: Vector2D, end2: Vector2D): Vector2D | undefined {
@@ -178,7 +220,7 @@ export class GameField extends Container {
             // Search for further reflections
             let remainingRay = vectorSub(end, finalIntersection)
             let mirroredRay = this.mirrorVector(remainingRay, intersectionPoints[0].lineDirection)
-            startPath = this.reflectLine(startPath, finalIntersection, vectorAdd(finalIntersection ,mirroredRay), maxReflections - 1)
+            startPath = this.reflectLine(startPath, finalIntersection, vectorAdd(finalIntersection, mirroredRay), maxReflections - 1)
         } else {
             startPath.push(end)
         }

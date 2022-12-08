@@ -1,9 +1,10 @@
-import {limit, Vector2D, vectorLerp} from "./Helpers";
+import {clamp, limit, Vector2D, vectorLerp} from "./Helpers";
 import {KeyHandler} from "./KeyHandler";
-import {Sprite} from "pixi.js";
+import {Container} from "pixi.js";
+import {GAME_HEIGHT, GAME_WIDTH} from "../index";
 
 export class InputManager {
-    private clickableArea?: Sprite
+    private clickableArea?: Container
     private mousePosition: Vector2D = {x: 0, y: 0}
     private mouseDown: boolean = false
 
@@ -34,10 +35,13 @@ export class InputManager {
     }
 
     getMousePosition(): Vector2D {
-        return this.mousePosition
+        return {
+            x: clamp(this.mousePosition.x, 0, GAME_WIDTH),
+            y: clamp(this.mousePosition.y, 0, GAME_HEIGHT)
+        }
     }
 
-    initMouseControls(area: Sprite, onPointerDown: ()=> void, onPointerUp: (mousePos: Vector2D) => void) {
+    initMouseControls(area: Container, onPointerDown: () => void, onPointerUp: (mousePos: Vector2D) => void) {
         this.clickableArea = area
         this.clickableArea.interactive = true
 

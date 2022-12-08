@@ -1,11 +1,49 @@
-import {Graphics} from "pixi.js";
+import {Graphics, LINE_CAP, LINE_JOIN} from "pixi.js";
 import {Vector2D} from "../../../General/Helpers";
 
 export class Rope extends Graphics {
-    update(pos1: Vector2D, pos2: Vector2D) {
+    private path: Vector2D[] = []
+
+    dropFirstPoint() {
+        this.path.shift()
+        this.update()
+    }
+
+    addPoint(point: Vector2D) {
+        if(point) {
+            this.path.push({x: point.x, y: point.y})
+            this.update()
+        }
+    }
+
+    setFirstPoint(first: Vector2D) {
+        this.path[0] = {x: first.x, y: first.y}
+        this.update()
+    }
+
+    setLast(last: Vector2D) {
+        this.path[this.path.length - 1] = {x: last.x, y: last.y}
+        this.update()
+    }
+
+    setPath(path: Vector2D[]) {
+        this.path = path
+        this.update()
+    }
+
+    private update() {
         this.clear()
-        this.lineStyle(10, 0x000)
-            .moveTo(pos1.x, pos1.y)
-            .lineTo(pos2.x, pos2.y);
+        this.lineStyle({
+            width: 10,
+            color: 0x000,
+            cap: LINE_CAP.ROUND,
+            join: LINE_JOIN.ROUND
+        })
+        if (this.path.length > 0) {
+            this.moveTo(this.path[0].x, this.path[0].y)
+            for (let i = 1; i < this.path.length; i++) {
+                this.lineTo(this.path[i].x, this.path[i].y)
+            }
+        }
     }
 }

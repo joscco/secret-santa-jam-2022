@@ -1,28 +1,8 @@
 import {Graphics, LINE_CAP} from "pixi.js";
-import {Vector2D, vectorDistance, vectorLerp} from "../../../General/Helpers";
-
-declare module "pixi.js" {
-    interface Graphics {
-        drawDashedLine(x_0: number, y_0: number, x_1: number, y_1: number, dashLength?: number, dashes?: number): void;
-    }
-}
-
-Graphics.prototype.drawDashedLine = function (x_0: number, y_0: number, x_1: number, y_1: number, dashLength: number = 3, dashes: number = 12) {
-    const startPosition = {x: x_0, y: y_0};
-    const toPosition = {x: x_1, y: y_1};
-    const distance = vectorDistance(startPosition, toPosition)
-    const relativeDashLength = dashLength / distance
-    const relativeGapLength = (1 - dashes * relativeDashLength) / (dashes - 1)
-
-    for (let i = 0; i < dashes; i++) {
-        let dashStart = vectorLerp(startPosition, toPosition, i * (relativeDashLength + relativeGapLength))
-        let dashEnd = vectorLerp(startPosition, toPosition, i * (relativeDashLength + relativeGapLength) + relativeDashLength)
-        this.moveTo(dashStart.x, dashStart.y);
-        this.lineTo(dashEnd.x, dashEnd.y);
-    }
-};
+import {Vector2D, vectorDistance} from "../../../General/Helpers";
 
 export class PreviewRope extends Graphics {
+    readonly NUMBER_DASHES = 30
     update(path: Vector2D[]) {
         this.clear()
         this.lineStyle({
@@ -30,8 +10,12 @@ export class PreviewRope extends Graphics {
             color: 0xffffff,
             cap: LINE_CAP.ROUND
         })
+
+        let segmentLengths = path.slideWindow(2).map(tuple => vectorDistance(tuple[0], tuple[1]))
+        let wholeLength = segmentLengths.add()
+        let dashes = segmentLengths.multiply(this.NUMBER_DASHES / wholeLength).ceil()
         for (let i = 0; i < path.length - 1; i++) {
-            this.drawDashedLine(path[i].x, path[i].y, path[i + 1].x, path[i + 1].y)
+            this.drawDashedLine(path[i].x, path[i].y, path[i + 1].x, path[i + 1].y, dashes[i])
         }
     }
 }
