@@ -52,6 +52,10 @@ export function quadVectorLength(direction: Vector2D) {
     return quadVectorDistance({x: 0, y: 0}, direction)
 }
 
+export function vectorLength(direction: Vector2D) {
+    return Math.sqrt(quadVectorDistance({x: 0, y: 0}, direction))
+}
+
 export function clampAndRound(value: number, min: number, max: number): number {
     return Math.round(clamp(value, min, max));
 }

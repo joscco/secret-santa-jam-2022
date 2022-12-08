@@ -12,6 +12,7 @@ import {
     vectorAdd,
     vectorDistance,
     vectorDot,
+    vectorLength,
     vectorLerp,
     vectorMultiply,
     vectorSub
@@ -66,7 +67,7 @@ export class GameField extends Container {
         this.blockPolygons.forEach(poly => poly.closeStroke = true)
 
         let fieldPolygonDrawer = new Graphics().lineStyle({
-            width: 20,
+            width: 50,
             color: 0x005500,
             join: LINE_JOIN.ROUND
         })
@@ -92,6 +93,8 @@ export class GameField extends Container {
 
         if (!this.inHookShooting) {
             if (this.inputManager.isMouseDown()) {
+                // This is better than using Tween
+                this.previewRope.alpha = lerp(this.previewRope.alpha, 1, 0.05)
                 this.updatePreviewRope(mousePosition)
             }
             this.hook.scale.x = this.gun.gunSprite.scale.x
@@ -112,7 +115,6 @@ export class GameField extends Container {
 
     private async onPointerDown() {
         this.updatePreviewRope(this.inputManager.getMousePosition())
-        Tweener.of(this.previewRope).to({alpha: 1}).duration(300).start()
     }
 
     private async onPointerUp() {
@@ -190,6 +192,9 @@ export class GameField extends Container {
             return [...startPath, end]
         }
 
+        let rayDirection = vectorSub(start, end)
+        let rayLength = vectorDistance(start, end)
+
         let intersectionPoints: { point: Vector2D, lineDirection: Vector2D }[] = []
 
         for (let poly of this.blockPolygons) {
@@ -197,7 +202,14 @@ export class GameField extends Container {
             for (let i = 0, j = length - 1; i < length; j = i++) {
                 const startPolyLine = {x: poly.points[i * 2], y: poly.points[(i * 2) + 1]};
                 const endPolyLine = {x: poly.points[j * 2], y: poly.points[(j * 2) + 1]};
-                let intersection = this.findLineIntersection(start, end, startPolyLine, endPolyLine)
+
+                // Die rechnung von unten lässt sich hier noch nicht machen. Also ruhig weit gehen
+                let dir2 = vectorSub(endPolyLine, startPolyLine)
+                let cutAngle = Math.acos(Math.abs(vectorDot(rayDirection, dir2)) / (rayLength * vectorLength(dir2)))
+                let distanceSmallerNeeded = 25 / Math.sin(cutAngle)
+                let advancedEnd = vectorLerp(start, end, (rayLength + distanceSmallerNeeded) / rayLength)
+
+                let intersection = this.findLineIntersection(start, advancedEnd, startPolyLine, endPolyLine)
                 if (intersection) {
                     let polyLineDirection = vectorSub(endPolyLine, startPolyLine)
                     intersectionPoints.push({
@@ -215,12 +227,22 @@ export class GameField extends Container {
 
         if (intersectionPoints.length !== 0) {
             let finalIntersection = intersectionPoints[0].point
-            startPath.push(finalIntersection)
+            let lastPoint = startPath[startPath.length - 1]
+            let length = vectorDistance(lastPoint, finalIntersection)
+
+            // Den Teil hier besser aufschreiben:
+            // Idee: Gehe vom eigentlichen Schnittpunkt wieder ein Stück zurück
+            // In normalenrichtung von der Schnittlinie soll dabei der Abstand konstant sein
+            let dir2 = intersectionPoints[0].lineDirection
+            let cutAngle = Math.acos(Math.abs(vectorDot(rayDirection, dir2)) / (rayLength * vectorLength(dir2)))
+            let distanceSmallerNeeded = 25 / Math.sin(cutAngle)
+            let preIntersectionPoint = vectorLerp(lastPoint, finalIntersection, (length - distanceSmallerNeeded) / length)
+            startPath.push(preIntersectionPoint)
 
             // Search for further reflections
-            let remainingRay = vectorSub(end, finalIntersection)
+            let remainingRay = vectorSub(end, preIntersectionPoint)
             let mirroredRay = this.mirrorVector(remainingRay, intersectionPoints[0].lineDirection)
-            startPath = this.reflectLine(startPath, finalIntersection, vectorAdd(finalIntersection, mirroredRay), maxReflections - 1)
+            startPath = this.reflectLine(startPath, preIntersectionPoint, vectorAdd(preIntersectionPoint, mirroredRay), maxReflections - 1)
         } else {
             startPath.push(end)
         }
