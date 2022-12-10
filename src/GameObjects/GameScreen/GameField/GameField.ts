@@ -1,38 +1,41 @@
-import {Container, Graphics, LINE_JOIN, Polygon, Sprite} from "pixi.js";
-import {Player} from "./Player";
-import {HookGun} from "./HookGun";
+import {Container, Sprite} from "pixi.js";
+import {Hedgehog} from "./Hedgehog";
 import {Hook} from "./Hook";
-import {GAME_HEIGHT, GAME_WIDTH} from "../../../index";
+import {ASSET_MANAGER, GAME_HEIGHT, GAME_WIDTH} from "../../../index";
 import {InputManager} from "../../../General/InputManager";
 import {
+    findLineIntersection,
     harmonizeAngle,
     lerp,
-    normalize,
+    mirror,
     Vector2D,
     vectorAdd,
     vectorDistance,
     vectorDot,
     vectorLength,
     vectorLerp,
-    vectorMultiply,
     vectorSub
 } from "../../../General/Helpers";
 import {Rope} from "./Rope";
 import {PreviewRope} from "./PreviewRope";
 import Tweener from "../../../General/Tweener";
 import {Texture} from "@pixi/core";
+import {COLOR_FLOOR_0, COLOR_FLOOR_1, COLOR_FLOOR_2, COLOR_FLOOR_3, COLOR_FLOOR_4} from "./Colors";
+import {TextureAssetID} from "../../../General/AssetManager";
+import {Polygon2D} from "../../../General/Polygon2D";
+import {Easing} from "@tweenjs/tween.js";
 
-const PLAYER_HOOK_DURATION = 150
+const PLAYER_HOOK_DURATION = 500
 const HOOK_HOOK_DURATION = 100
 
 export class GameField extends Container {
     field: Container
 
-    blockPolygons: Polygon[]
+    blockPolygons: Polygon2D[]
     linePath: Vector2D[] = []
+    polyWalls: Container
 
-    player: Player
-    gun: HookGun
+    hedgehog: Hedgehog
     rope: Rope
     previewRope: PreviewRope
     hook: Hook
@@ -44,52 +47,43 @@ export class GameField extends Container {
 
     constructor() {
         super()
-        this.field = new Sprite(Texture.WHITE)
-        this.field.alpha = 0.1
-        this.field.width = GAME_WIDTH
-        this.field.height = GAME_HEIGHT
+        this.field = this.initRandomField()
 
-        this.player = new Player()
-        this.player.position.set(GAME_WIDTH / 2, GAME_HEIGHT / 2)
+        this.hedgehog = new Hedgehog()
+        this.hedgehog.position.set(GAME_WIDTH / 2, GAME_HEIGHT / 2)
         this.rope = new Rope()
         this.previewRope = new PreviewRope()
         this.previewRope.alpha = 0
 
-        this.gun = new HookGun()
-        this.gun.position = this.player.position
         this.hook = new Hook()
-        this.hook.position = this.gun.hookPoint.getGlobalPosition()
-
+        this.hook.position = this.hedgehog.getGlobalPosition()
 
         this.blockPolygons = [
-            new Polygon([200, 200, GAME_WIDTH - 200, 200, GAME_WIDTH - 200, GAME_HEIGHT - 200, 200, GAME_HEIGHT - 200]),
-            new Polygon(700, 600, GAME_WIDTH - 700, 600, GAME_WIDTH / 2, 800)]
-        this.blockPolygons.forEach(poly => poly.closeStroke = true)
-
-        let fieldPolygonDrawer = new Graphics().lineStyle({
-            width: 50,
-            color: 0x005500,
-            join: LINE_JOIN.ROUND
-        })
-        this.blockPolygons.forEach(poly => fieldPolygonDrawer.drawPolygon(poly))
+            new Polygon2D([
+                {x: 200, y: 200},
+                {x: GAME_WIDTH - 200, y: 200},
+                {x: GAME_WIDTH - 200, y: GAME_HEIGHT - 200},
+                {x: 200, y: GAME_HEIGHT - 200}
+            ]),
+            new Polygon2D([
+                {x: 700, y: 600},
+                {x: GAME_WIDTH - 700, y: 600},
+                {x: GAME_WIDTH / 2, y: 800}
+            ])]
+        this.polyWalls = new Container()
+        this.polyWalls.sortableChildren = true
 
         this.inputManager = new InputManager()
         this.inputManager.initMouseControls(this.field, () => this.onPointerDown(), () => this.onPointerUp())
 
-        this.addChild(this.field, fieldPolygonDrawer, this.player, this.previewRope, this.rope, this.gun, this.hook)
+        this.addChild(this.field, this.polyWalls, this.previewRope, this.rope, this.hook, this.hedgehog)
+        this.blockPolygons.forEach(poly => this.drawPolygonWall(poly))
+        this.polyWalls.cacheAsBitmap = true
     }
 
-    update(delta: number) {
-        this.inputManager.update()
+    update() {
         let mousePosition = this.inputManager.getMousePosition()
-        let runningDirection = this.inputManager.getRunningDirection()
-
-        if (!this.drawingToHook) {
-            this.player.runTowards(delta, runningDirection)
-            this.rotateGun(mousePosition, delta);
-        }
-
-        this.gun.position = this.player.position
+        this.hedgehog.update()
 
         if (!this.inHookShooting) {
             if (this.inputManager.isMouseDown()) {
@@ -97,23 +91,22 @@ export class GameField extends Container {
                 this.previewRope.alpha = lerp(this.previewRope.alpha, 1, 0.05)
                 this.updatePreviewRope(mousePosition)
             }
-            this.hook.scale.x = this.gun.gunSprite.scale.x
-            let harmonizedHookRotation = harmonizeAngle(this.gun.gunSprite.rotation, this.hook.rotation)
+
+            let direction = vectorSub(mousePosition, this.getGlobalPosition())
+            let desiredRotation = Math.atan2(direction.y, direction.x)
+            let harmonizedHookRotation = harmonizeAngle(desiredRotation, this.hook.rotation)
             this.hook.rotation = lerp(this.hook.rotation, harmonizedHookRotation, 0.2)
-            this.hook.position = vectorLerp(this.hook.position, this.gun.hookPoint.getGlobalPosition(), 0.2)
+            this.hook.position = vectorLerp(this.hook.position, this.hedgehog.position, 0.2)
         }
     }
 
-    private rotateGun(mousePosition: Vector2D, delta: number) {
-        this.gun.rotateTowards(mousePosition, delta)
-    }
-
     updatePreviewRope(mousePosition: Vector2D) {
-        this.linePath = this.reflectLine([this.gun.hookPoint.getGlobalPosition()], this.gun.hookPoint.getGlobalPosition(), mousePosition)
+        this.linePath = this.reflectLine([this.hedgehog.position], this.hedgehog.getGlobalPosition(), mousePosition)
         this.previewRope.update(this.linePath)
     }
 
     private async onPointerDown() {
+        this.hedgehog.setState("PREROLLING")
         this.updatePreviewRope(this.inputManager.getMousePosition())
     }
 
@@ -124,7 +117,7 @@ export class GameField extends Container {
             await this.hookHookTo(this.linePath)
             this.drawingToHook = true
             await this.hookPlayerTo(this.linePath)
-            this.rope.clear()
+            this.rope.setPath([])
             this.linePath = []
             this.drawingToHook = false
             this.inHookShooting = false
@@ -147,83 +140,74 @@ export class GameField extends Container {
     }
 
     async hookPlayerTo(linePath: Vector2D[]): Promise<any> {
-        for (let pathPosition of linePath.slice(1)) {
-            let playerPositionBefore = this.player.position
-            let val = {x: 0}
-            await Tweener.of(val)
-                .to({x: 1})
-                .duration(PLAYER_HOOK_DURATION)
-                .onUpdate((object) => {
-                    this.player.position = vectorLerp(playerPositionBefore, pathPosition, object.x)
-                    this.rope.setFirstPoint(this.gun.hookPoint.getGlobalPosition())
-                })
-                .start()
-                .promise()
-            this.rope.dropFirstPoint()
+        this.hedgehog.setState("ROLLING")
+        let val = {x: 0}
+        let distances = linePath.slideWindow(2).map((points) => vectorDistance(points[0], points[1]))
+        let currentIndex = 0
+        let lastFullDistance = 0
+        let fullDistance = distances.reduce((a, b) => a + b, 0)
+
+        let valToPosition = (val: number) => {
+            if (val > (lastFullDistance + distances[currentIndex])/fullDistance) {
+                this.rope.dropFirstPoint()
+                lastFullDistance += distances[currentIndex]
+                currentIndex++
+            }
+
+            let pathLerp = (val - (lastFullDistance/fullDistance))/ (distances[currentIndex]/fullDistance)
+            return vectorLerp(linePath[currentIndex], linePath[currentIndex+1], pathLerp)
         }
+
+        await Tweener.of(val)
+            .to({x: 1})
+            .duration(PLAYER_HOOK_DURATION)
+            .easing(Easing.Cubic.InOut)
+            .onUpdate((object) => {
+                this.hedgehog.position = valToPosition(object.x)
+                if (object.x > 0.8) {
+                    this.hedgehog.setState("IDLE")
+                }
+                this.rope.setFirstPoint(this.hedgehog.position)
+            })
+            .start()
+            .promise()
         this.rope.dropFirstPoint()
     }
 
-    private findLineIntersection(start1: Vector2D, end1: Vector2D, start2: Vector2D, end2: Vector2D): Vector2D | undefined {
-        // See https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
-        let t_up = (start1.x - start2.x) * (start2.y - end2.y) - (start1.y - start2.y) * (start2.x - end2.x)
-        let t_down = (start1.x - end1.x) * (start2.y - end2.y) - (start1.y - end1.y) * (start2.x - end2.x)
-
-        let u_up = (start1.x - start2.x) * (start1.y - end1.y) - (start1.y - start2.y) * (start1.x - end1.x)
-        let u_down = (start1.x - end1.x) * (start2.y - end2.y) - (start1.y - end1.y) * (start2.x - end2.x)
-
-        // We have to have 0 <= t_up / t_down <= 1 if the two lines shall intersect
-        if (t_down !== 0 && u_down !== 0
-            && Math.sign(t_up) == Math.sign(t_down)
-            && Math.sign(u_down) == Math.sign(u_up)
-            && Math.abs(t_up) <= Math.abs(t_down)
-            && Math.abs(u_up) <= Math.abs(u_down)
-        ) {
-            let t = t_up / t_down
-            return vectorLerp(start1, end1, t)
-        }
-
-        // Both lines will not have an intersection
-        return undefined
-    }
-
-    private reflectLine(startPath: Vector2D[], start: Vector2D, end: Vector2D, maxReflections: number = 100): Vector2D[] {
+    private reflectLine(startPath: Vector2D[], rayStart: Vector2D, rayEnd: Vector2D, maxReflections: number = 100): Vector2D[] {
         if (maxReflections === 0) {
-            return [...startPath, end]
+            return [...startPath, rayEnd]
         }
 
-        let rayDirection = vectorSub(start, end)
-        let rayLength = vectorDistance(start, end)
+        let rayDirection = vectorSub(rayStart, rayEnd)
+        let rayLength = vectorDistance(rayStart, rayEnd)
 
-        let intersectionPoints: { point: Vector2D, lineDirection: Vector2D }[] = []
+        let intersectionPoints: { point: Vector2D, lineDirection: Vector2D, cutAngle: number }[] = []
 
         for (let poly of this.blockPolygons) {
-            const length = poly.points.length / 2;
-            for (let i = 0, j = length - 1; i < length; j = i++) {
-                const startPolyLine = {x: poly.points[i * 2], y: poly.points[(i * 2) + 1]};
-                const endPolyLine = {x: poly.points[j * 2], y: poly.points[(j * 2) + 1]};
-
+            poly.forEachSideDo((polySideStart, polySideEnd) => {
                 // Die rechnung von unten lässt sich hier noch nicht machen. Also ruhig weit gehen
-                let dir2 = vectorSub(endPolyLine, startPolyLine)
-                let cutAngle = Math.acos(Math.abs(vectorDot(rayDirection, dir2)) / (rayLength * vectorLength(dir2)))
+                let polySideDirection = vectorSub(polySideEnd, polySideStart)
+                let cutAngle = Math.acos(Math.abs(vectorDot(rayDirection, polySideDirection)) / (rayLength * vectorLength(polySideDirection)))
                 let distanceSmallerNeeded = 25 / Math.sin(cutAngle)
-                let advancedEnd = vectorLerp(start, end, (rayLength + distanceSmallerNeeded) / rayLength)
+                let advancedEnd = vectorLerp(rayStart, rayEnd, (rayLength + distanceSmallerNeeded) / rayLength)
 
-                let intersection = this.findLineIntersection(start, advancedEnd, startPolyLine, endPolyLine)
+                let intersection = findLineIntersection(rayStart, advancedEnd, polySideStart, polySideEnd)
                 if (intersection) {
-                    let polyLineDirection = vectorSub(endPolyLine, startPolyLine)
+                    let polyLineDirection = vectorSub(polySideEnd, polySideStart)
                     intersectionPoints.push({
                         point: intersection,
-                        lineDirection: polyLineDirection
+                        lineDirection: polyLineDirection,
+                        cutAngle: cutAngle
                     })
                 }
-            }
+            })
         }
 
         intersectionPoints = intersectionPoints
             // Avoid reflection on same line
-            .filter(point => vectorDistance(point.point, start) > 1)
-            .sort((a, b) => vectorDistance(a.point, start) - vectorDistance(b.point, start))
+            .filter(point => vectorDistance(point.point, rayStart) > 1)
+            .sort((a, b) => vectorDistance(a.point, rayStart) - vectorDistance(b.point, rayStart))
 
         if (intersectionPoints.length !== 0) {
             let finalIntersection = intersectionPoints[0].point
@@ -233,26 +217,101 @@ export class GameField extends Container {
             // Den Teil hier besser aufschreiben:
             // Idee: Gehe vom eigentlichen Schnittpunkt wieder ein Stück zurück
             // In normalenrichtung von der Schnittlinie soll dabei der Abstand konstant sein
-            let dir2 = intersectionPoints[0].lineDirection
-            let cutAngle = Math.acos(Math.abs(vectorDot(rayDirection, dir2)) / (rayLength * vectorLength(dir2)))
-            let distanceSmallerNeeded = 25 / Math.sin(cutAngle)
+            let distanceSmallerNeeded = 25 / Math.sin(intersectionPoints[0].cutAngle)
             let preIntersectionPoint = vectorLerp(lastPoint, finalIntersection, (length - distanceSmallerNeeded) / length)
             startPath.push(preIntersectionPoint)
 
             // Search for further reflections
-            let remainingRay = vectorSub(end, preIntersectionPoint)
-            let mirroredRay = this.mirrorVector(remainingRay, intersectionPoints[0].lineDirection)
+            let remainingRay = vectorSub(rayEnd, preIntersectionPoint)
+            let mirroredRay = mirror(remainingRay, intersectionPoints[0].lineDirection)
             startPath = this.reflectLine(startPath, preIntersectionPoint, vectorAdd(preIntersectionPoint, mirroredRay), maxReflections - 1)
         } else {
-            startPath.push(end)
+            startPath.push(rayEnd)
         }
 
         return startPath
     }
 
-    private mirrorVector(vector: Vector2D, mirror: Vector2D): Vector2D {
-        let normalizedMirror = normalize(mirror)
-        let negatedVector = vectorMultiply(-1, vector)
-        return vectorAdd(negatedVector, vectorMultiply(2 * vectorDot(vector, normalizedMirror), normalizedMirror))
+    private createEllipticRandomBackgroundSprites(
+        minAmount: number, maxAmount: number,
+        tint: number, offsetX: number, offsetY: number,
+        minIndex: number, maxIndex: number,
+        maxRadiusX: number, maxRadiusY: number,
+        center: Vector2D = {x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2}): Sprite[] {
+        let result: Sprite[] = []
+        let amount = minAmount + Math.floor(Math.random() * (maxAmount - minAmount))
+        for (let i = 0; i < amount; i++) {
+            let bigDropIndex = minIndex + Math.floor(Math.random() * (maxIndex - minIndex))
+            let bigDropTexture = ASSET_MANAGER.getTextureAsset(`floor_decor_${bigDropIndex}` as TextureAssetID)
+            let bigDrop = new Sprite(bigDropTexture)
+            bigDrop.anchor.set(0.5)
+            let x = Math.floor((Math.random() * maxRadiusX - maxRadiusX / 2) / offsetX) * offsetX
+            let y = Math.floor((Math.random() * maxRadiusY - maxRadiusY / 2) / offsetY) * offsetY
+            bigDrop.position.set(center.x + x, center.y + y)
+            bigDrop.scale.x = Math.random() > 0.5 ? 1 : -1
+            bigDrop.tint = tint
+            result.push(bigDrop)
+        }
+        return result
+    }
+
+
+    private initRandomField(): Container {
+        // Start with basic background
+        let container = new Container()
+
+        let background = new Sprite(Texture.WHITE)
+        background.width = GAME_WIDTH
+        background.height = GAME_HEIGHT
+        background.tint = COLOR_FLOOR_0
+        container.addChild(background)
+
+        // Drop Random Blobs in lighter color
+        this.createEllipticRandomBackgroundSprites(
+            100, 200, COLOR_FLOOR_1, 50, 40, 3, 20, GAME_WIDTH, GAME_HEIGHT
+        ).forEach(sprite => {
+            container.addChild(sprite)
+        })
+
+        this.createEllipticRandomBackgroundSprites(
+            100, 150, COLOR_FLOOR_2, 45, 45, 3, 20, GAME_WIDTH, GAME_HEIGHT
+        ).forEach(sprite => {
+            container.addChild(sprite)
+        })
+
+        // Drop even lighter colors
+        this.createEllipticRandomBackgroundSprites(
+            70, 120, COLOR_FLOOR_3, 53, 42, 0, 15, GAME_WIDTH - 300, GAME_HEIGHT - 300
+        ).forEach(sprite => {
+            container.addChild(sprite)
+        })
+
+        // Drop small line drops of very light color
+        this.createEllipticRandomBackgroundSprites(
+            50, 90, COLOR_FLOOR_4, 49, 32, 0, 10, GAME_WIDTH - 300, GAME_HEIGHT - 300
+        ).forEach(sprite => {
+            container.addChild(sprite)
+        })
+
+        // Make the background easy to save and return
+        container.cacheAsBitmap = true
+        return container
+    }
+
+    private drawPolygonWall(poly: Polygon2D) {
+        poly.forEachSideDo((start, end) => {
+            let direction = vectorSub(end, start)
+            let distance = vectorLength(direction)
+            let numberOfPollers = distance / 30
+
+            for (let polIndex = 0; polIndex < numberOfPollers; polIndex++) {
+                let randomIndex = Math.floor(Math.random() * 5)
+                let sprite = new Sprite(ASSET_MANAGER.getTextureAsset(`poller${randomIndex}` as TextureAssetID))
+                sprite.position = vectorLerp(start, end, polIndex / numberOfPollers)
+                sprite.anchor.set(0.5, 1)
+                sprite.zIndex = sprite.position.y
+                this.polyWalls.addChild(sprite)
+            }
+        })
     }
 }

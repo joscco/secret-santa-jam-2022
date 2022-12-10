@@ -7,12 +7,11 @@ export class BlinkingEyes extends Sprite {
     private readonly eyesClosedTexture: Texture;
     private blinkingDisabled: boolean = false;
 
-
-    constructor(eyesOpenTexture: Texture, eyesClosedTextyre: Texture) {
+    constructor(eyesOpenTexture: Texture, eyesClosedTexture: Texture) {
         super(eyesOpenTexture);
 
         this.eyesOpenTexture = eyesOpenTexture
-        this.eyesClosedTexture = eyesClosedTextyre
+        this.eyesClosedTexture = eyesClosedTexture
     }
 
     private async blink(): Promise<void> {

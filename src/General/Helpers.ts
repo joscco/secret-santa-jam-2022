@@ -125,6 +125,35 @@ export function vectorLerp(vec1: Vector2D, vec2: Vector2D, amount: number) {
     return {x: lerp(vec1.x, vec2.x, amount), y: lerp(vec1.y, vec2.y, amount)}
 }
 
+export function mirror(vector: Vector2D, mirror: Vector2D): Vector2D {
+    let normalizedMirror = normalize(mirror)
+    let negatedVector = vectorMultiply(-1, vector)
+    return vectorAdd(negatedVector, vectorMultiply(2 * vectorDot(vector, normalizedMirror), normalizedMirror))
+}
+
+export function findLineIntersection(start1: Vector2D, end1: Vector2D, start2: Vector2D, end2: Vector2D): Vector2D | undefined {
+    // See https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
+    let t_up = (start1.x - start2.x) * (start2.y - end2.y) - (start1.y - start2.y) * (start2.x - end2.x)
+    let t_down = (start1.x - end1.x) * (start2.y - end2.y) - (start1.y - end1.y) * (start2.x - end2.x)
+
+    let u_up = (start1.x - start2.x) * (start1.y - end1.y) - (start1.y - start2.y) * (start1.x - end1.x)
+    let u_down = (start1.x - end1.x) * (start2.y - end2.y) - (start1.y - end1.y) * (start2.x - end2.x)
+
+    // We have to have 0 <= t_up / t_down <= 1 if the two lines shall intersect
+    if (t_down !== 0 && u_down !== 0
+        && Math.sign(t_up) == Math.sign(t_down)
+        && Math.sign(u_down) == Math.sign(u_up)
+        && Math.abs(t_up) <= Math.abs(t_down)
+        && Math.abs(u_up) <= Math.abs(u_down)
+    ) {
+        let t = t_up / t_down
+        return vectorLerp(start1, end1, t)
+    }
+
+    // Both lines will not have an intersection
+    return undefined
+}
+
 export function lerp(value: number, to: number, amount: number) {
     return value + amount * (to - value);
 }

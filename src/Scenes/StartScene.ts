@@ -39,7 +39,7 @@ export class StartScene extends Scene {
     }
 
     update(delta: number) {
-        this.gameField.update(delta)
+        this.gameField.update()
     }
 
     private addPretitle(): Text {
