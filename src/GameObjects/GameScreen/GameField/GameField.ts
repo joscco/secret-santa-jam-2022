@@ -20,12 +20,12 @@ import {Rope} from "./Rope";
 import {PreviewRope} from "./PreviewRope";
 import Tweener from "../../../General/Tweener";
 import {Texture} from "@pixi/core";
-import {COLOR_FLOOR_0, COLOR_FLOOR_1, COLOR_FLOOR_2, COLOR_FLOOR_3, COLOR_FLOOR_4} from "./Colors";
+import {COLOR_FLOOR_0, COLOR_FLOOR_1, COLOR_FLOOR_2, COLOR_FLOOR_3, COLOR_FLOOR_4, COLOR_FLOOR_5} from "./Colors";
 import {TextureAssetID} from "../../../General/AssetManager";
 import {Polygon2D} from "../../../General/Polygon2D";
 import {Easing} from "@tweenjs/tween.js";
 
-const PLAYER_HOOK_DURATION = 500
+const PLAYER_HOOK_SPEED = 1/30
 const HOOK_HOOK_DURATION = 100
 
 export class GameField extends Container {
@@ -50,7 +50,7 @@ export class GameField extends Container {
         this.field = this.initRandomField()
 
         this.hedgehog = new Hedgehog()
-        this.hedgehog.position.set(GAME_WIDTH / 2, GAME_HEIGHT / 2)
+        this.hedgehog.position.set(GAME_WIDTH / 2 - 400, GAME_HEIGHT / 2)
         this.rope = new Rope()
         this.previewRope = new PreviewRope()
         this.previewRope.alpha = 0
@@ -60,15 +60,15 @@ export class GameField extends Container {
 
         this.blockPolygons = [
             new Polygon2D([
-                {x: 200, y: 200},
-                {x: GAME_WIDTH - 200, y: 200},
-                {x: GAME_WIDTH - 200, y: GAME_HEIGHT - 200},
-                {x: 200, y: GAME_HEIGHT - 200}
+                {x: 200, y: 100},
+                {x: GAME_WIDTH - 200, y: 300},
+                {x: GAME_WIDTH - 200, y: GAME_HEIGHT - 100},
+                {x: 200, y: GAME_HEIGHT - 300}
             ]),
             new Polygon2D([
-                {x: 700, y: 600},
-                {x: GAME_WIDTH - 700, y: 600},
-                {x: GAME_WIDTH / 2, y: 800}
+                {x: 700, y: 500},
+                {x: GAME_WIDTH - 700, y: 500},
+                {x: GAME_WIDTH / 2, y: 700}
             ])]
         this.polyWalls = new Container()
         this.polyWalls.sortableChildren = true
@@ -101,7 +101,7 @@ export class GameField extends Container {
     }
 
     updatePreviewRope(mousePosition: Vector2D) {
-        this.linePath = this.reflectLine([this.hedgehog.position], this.hedgehog.getGlobalPosition(), mousePosition)
+        this.linePath = this.reflectLine([this.hedgehog.getGlobalPosition()], this.hedgehog.getGlobalPosition(), mousePosition)
         this.previewRope.update(this.linePath)
     }
 
@@ -143,25 +143,28 @@ export class GameField extends Container {
         this.hedgehog.setState("ROLLING")
         let val = {x: 0}
         let distances = linePath.slideWindow(2).map((points) => vectorDistance(points[0], points[1]))
+        let fullDistance = distances.reduce((a, b) => a + b, 0)
+        let relativeLengths = distances.map(dist => dist/fullDistance)
         let currentIndex = 0
         let lastFullDistance = 0
-        let fullDistance = distances.reduce((a, b) => a + b, 0)
+        let lastRelativeDistance = 0
 
         let valToPosition = (val: number) => {
-            if (val > (lastFullDistance + distances[currentIndex])/fullDistance) {
-                this.rope.dropFirstPoint()
+            if (val > (lastFullDistance + distances[currentIndex]) / fullDistance) {
                 lastFullDistance += distances[currentIndex]
+                lastRelativeDistance = lastFullDistance / fullDistance
                 currentIndex++
+                this.rope.dropFirstPoint()
             }
 
-            let pathLerp = (val - (lastFullDistance/fullDistance))/ (distances[currentIndex]/fullDistance)
-            return vectorLerp(linePath[currentIndex], linePath[currentIndex+1], pathLerp)
+            let pathLerp = (val - lastRelativeDistance) / (relativeLengths[currentIndex])
+            return vectorLerp(linePath[currentIndex], linePath[currentIndex + 1], pathLerp)
         }
 
         await Tweener.of(val)
             .to({x: 1})
-            .duration(PLAYER_HOOK_DURATION)
-            .easing(Easing.Cubic.InOut)
+            .duration(Math.sqrt(fullDistance) / PLAYER_HOOK_SPEED)
+            .easing(Easing.Cubic.Out)
             .onUpdate((object) => {
                 this.hedgehog.position = valToPosition(object.x)
                 if (object.x > 0.8) {
@@ -179,6 +182,7 @@ export class GameField extends Container {
             return [...startPath, rayEnd]
         }
 
+        let result: Vector2D[] = [...startPath]
         let rayDirection = vectorSub(rayStart, rayEnd)
         let rayLength = vectorDistance(rayStart, rayEnd)
 
@@ -219,17 +223,17 @@ export class GameField extends Container {
             // In normalenrichtung von der Schnittlinie soll dabei der Abstand konstant sein
             let distanceSmallerNeeded = 25 / Math.sin(intersectionPoints[0].cutAngle)
             let preIntersectionPoint = vectorLerp(lastPoint, finalIntersection, (length - distanceSmallerNeeded) / length)
-            startPath.push(preIntersectionPoint)
+            result.push(preIntersectionPoint)
 
             // Search for further reflections
             let remainingRay = vectorSub(rayEnd, preIntersectionPoint)
             let mirroredRay = mirror(remainingRay, intersectionPoints[0].lineDirection)
-            startPath = this.reflectLine(startPath, preIntersectionPoint, vectorAdd(preIntersectionPoint, mirroredRay), maxReflections - 1)
+            result = this.reflectLine(result, preIntersectionPoint, vectorAdd(preIntersectionPoint, mirroredRay), maxReflections - 1)
         } else {
-            startPath.push(rayEnd)
+            result.push(rayEnd)
         }
 
-        return startPath
+        return result
     }
 
     private createEllipticRandomBackgroundSprites(
@@ -300,16 +304,18 @@ export class GameField extends Container {
 
     private drawPolygonWall(poly: Polygon2D) {
         poly.forEachSideDo((start, end) => {
-            let direction = vectorSub(end, start)
-            let distance = vectorLength(direction)
-            let numberOfPollers = distance / 30
+            let distanceX = Math.abs(end.x - start.x)
+            let distanceY = Math.abs(end.y - start.y)
+            let numberOfPollers = Math.sqrt(distanceX * distanceX * 0.8 + distanceY * distanceY) / 65
 
             for (let polIndex = 0; polIndex < numberOfPollers; polIndex++) {
                 let randomIndex = Math.floor(Math.random() * 5)
                 let sprite = new Sprite(ASSET_MANAGER.getTextureAsset(`poller${randomIndex}` as TextureAssetID))
-                sprite.position = vectorLerp(start, end, polIndex / numberOfPollers)
+                sprite.position = vectorAdd(vectorLerp(start, end, polIndex / numberOfPollers), {x: 0, y: 30})
                 sprite.anchor.set(0.5, 1)
                 sprite.zIndex = sprite.position.y
+                sprite.scale.x = Math.random() > 0.5 ? 1 : -1
+                sprite.tint = [COLOR_FLOOR_3, COLOR_FLOOR_4, COLOR_FLOOR_5][Math.floor(Math.random() * 3)]
                 this.polyWalls.addChild(sprite)
             }
         })

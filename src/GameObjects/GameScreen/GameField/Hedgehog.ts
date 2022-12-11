@@ -26,7 +26,7 @@ export class Hedgehog extends Container {
         this.betweenTextures = [ASSET_MANAGER.getTextureAsset("hedgehog_between")]
 
         this.body = new AnimatedSprite(this.idleTextures)
-        this.body.animationSpeed = 1 / 12
+        this.body.animationSpeed = 1 / 6
         this.body.play()
         this.body.anchor.set(0.5)
 
