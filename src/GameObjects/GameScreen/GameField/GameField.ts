@@ -24,8 +24,10 @@ import {COLOR_FLOOR_0, COLOR_FLOOR_1, COLOR_FLOOR_2, COLOR_FLOOR_3, COLOR_FLOOR_
 import {TextureAssetID} from "../../../General/AssetManager";
 import {Polygon2D} from "../../../General/Polygon2D";
 import {Easing} from "@tweenjs/tween.js";
+import {Enemy} from "./Enemies/Enemy";
+import {AntCircle} from "./Enemies/AntCircle";
 
-const PLAYER_HOOK_SPEED = 1/30
+const PLAYER_HOOK_SPEED = 1 / 30
 const HOOK_HOOK_DURATION = 100
 
 export class GameField extends Container {
@@ -34,6 +36,9 @@ export class GameField extends Container {
     blockPolygons: Polygon2D[]
     linePath: Vector2D[] = []
     polyWalls: Container
+
+    enemies: Enemy[] = []
+    antCircle: AntCircle
 
     hedgehog: Hedgehog
     rope: Rope
@@ -60,15 +65,15 @@ export class GameField extends Container {
 
         this.blockPolygons = [
             new Polygon2D([
-                {x: 200, y: 100},
-                {x: GAME_WIDTH - 200, y: 300},
-                {x: GAME_WIDTH - 200, y: GAME_HEIGHT - 100},
-                {x: 200, y: GAME_HEIGHT - 300}
+                {x: 100, y: 100},
+                {x: GAME_WIDTH - 100, y: 100},
+                {x: GAME_WIDTH - 100, y: GAME_HEIGHT - 100},
+                {x: 100, y: GAME_HEIGHT - 100}
             ]),
             new Polygon2D([
-                {x: 700, y: 500},
-                {x: GAME_WIDTH - 700, y: 500},
-                {x: GAME_WIDTH / 2, y: 700}
+                {x: 300, y: 300},
+                {x: 500, y: 300},
+                {x: 400, y: 700}
             ])]
         this.polyWalls = new Container()
         this.polyWalls.sortableChildren = true
@@ -76,7 +81,12 @@ export class GameField extends Container {
         this.inputManager = new InputManager()
         this.inputManager.initMouseControls(this.field, () => this.onPointerDown(), () => this.onPointerUp())
 
-        this.addChild(this.field, this.polyWalls, this.previewRope, this.rope, this.hook, this.hedgehog)
+        this.enemies = Array(60).fill(0).map(() => new Enemy())
+
+        this.antCircle = new AntCircle(this.enemies)
+        this.antCircle.position.set(GAME_WIDTH / 2, GAME_HEIGHT / 2)
+
+        this.addChild(this.field, this.polyWalls, this.previewRope, this.rope, this.hook, this.antCircle, this.hedgehog)
         this.blockPolygons.forEach(poly => this.drawPolygonWall(poly))
         this.polyWalls.cacheAsBitmap = true
     }
@@ -84,10 +94,10 @@ export class GameField extends Container {
     update() {
         let mousePosition = this.inputManager.getMousePosition()
         this.hedgehog.update()
+        this.antCircle.update()
 
         if (!this.inHookShooting) {
             if (this.inputManager.isMouseDown()) {
-                // This is better than using Tween
                 this.previewRope.alpha = lerp(this.previewRope.alpha, 1, 0.05)
                 this.updatePreviewRope(mousePosition)
             }
@@ -144,7 +154,7 @@ export class GameField extends Container {
         let val = {x: 0}
         let distances = linePath.slideWindow(2).map((points) => vectorDistance(points[0], points[1]))
         let fullDistance = distances.reduce((a, b) => a + b, 0)
-        let relativeLengths = distances.map(dist => dist/fullDistance)
+        let relativeLengths = distances.map(dist => dist / fullDistance)
         let currentIndex = 0
         let lastFullDistance = 0
         let lastRelativeDistance = 0
@@ -167,6 +177,14 @@ export class GameField extends Container {
             .easing(Easing.Cubic.Out)
             .onUpdate((object) => {
                 this.hedgehog.position = valToPosition(object.x)
+
+                // Kill all enemies near enough
+                for (let enemy of this.enemies) {
+                    if (enemy.isKilledByPosition(this.hedgehog.position)) {
+                        enemy.kill()
+                    }
+                }
+
                 if (object.x > 0.8) {
                     this.hedgehog.setState("IDLE")
                 }
