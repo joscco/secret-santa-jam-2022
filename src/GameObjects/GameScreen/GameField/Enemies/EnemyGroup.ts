@@ -4,7 +4,6 @@ import {Container} from "pixi.js";
 
 export abstract class EnemyGroup extends Container {
     enemies: Enemy[]
-    time: number = 0
 
     constructor(enemies: Enemy[]) {
         super()
@@ -12,10 +11,9 @@ export abstract class EnemyGroup extends Container {
         this.addChild(...enemies)
     }
 
-    update() {
-        this.time++
+    update(time: number) {
         this.enemies.forEach((enemy, i) => {
-            let newPos = this.move(i, this.time)
+            let newPos = this.move(i, time)
             let direction = vectorSub(newPos, enemy.position)
             enemy.sprite.rotation = Math.atan2(direction.y, direction.x)
             enemy.position.set(newPos.x, newPos.y)

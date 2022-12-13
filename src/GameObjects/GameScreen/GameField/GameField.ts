@@ -31,6 +31,8 @@ const PLAYER_HOOK_SPEED = 1 / 30
 const HOOK_HOOK_DURATION = 100
 
 export class GameField extends Container {
+    time: number = 0
+    slowTime: boolean = false
     field: Container
 
     blockPolygons: Polygon2D[]
@@ -92,9 +94,10 @@ export class GameField extends Container {
     }
 
     update() {
+        this.updateTime()
         let mousePosition = this.inputManager.getMousePosition()
         this.hedgehog.update()
-        this.antCircle.update()
+        this.antCircle.update(this.time)
 
         if (!this.inHookShooting) {
             if (this.inputManager.isMouseDown()) {
@@ -116,11 +119,13 @@ export class GameField extends Container {
     }
 
     private async onPointerDown() {
+        this.slowTime = true
         this.hedgehog.setState("PREROLLING")
         this.updatePreviewRope(this.inputManager.getMousePosition())
     }
 
     private async onPointerUp() {
+        this.slowTime = false
         Tweener.of(this.previewRope).to({alpha: 0}).duration(300).start()
         if (!this.drawingToHook && !this.inHookShooting) {
             this.inHookShooting = true
@@ -337,5 +342,9 @@ export class GameField extends Container {
                 this.polyWalls.addChild(sprite)
             }
         })
+    }
+
+    private updateTime() {
+        this.time += this.slowTime ? 0.2 : 1
     }
 }

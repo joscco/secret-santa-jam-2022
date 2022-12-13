@@ -7,7 +7,7 @@ import {Vector2D, vectorDistance} from "../../../../General/Helpers";
 export type ENEMY_TYPE = "ANT" | "BUG"
 
 export class Enemy extends Container {
-    killRadius = 20
+    killRadius = 40
     private points: number = 100;
     sprite: Sprite;
     private deadpointText: Text;
