@@ -26,6 +26,7 @@ import {Polygon2D} from "../../../General/Polygon2D";
 import {Easing} from "@tweenjs/tween.js";
 import {Enemy} from "./Enemies/Enemy";
 import {AntCircle} from "./Enemies/AntCircle";
+import {GameFieldUI} from "./UI/GameFieldUI";
 
 const PLAYER_HOOK_SPEED = 1 / 30
 const HOOK_HOOK_DURATION = 100
@@ -39,8 +40,10 @@ export class GameField extends Container {
     linePath: Vector2D[] = []
     polyWalls: Container
 
-    enemies: Enemy[] = []
+    aliveEnemies: Enemy[] = []
+    deadEnemies: Enemy[] = []
     antCircle: AntCircle
+    antCircle2: AntCircle
 
     hedgehog: Hedgehog
     rope: Rope
@@ -51,6 +54,9 @@ export class GameField extends Container {
 
     drawingToHook: boolean = false
     inHookShooting: boolean = false
+
+    points: number = 0
+    uiOverlay: GameFieldUI
 
     constructor() {
         super()
@@ -83,14 +89,24 @@ export class GameField extends Container {
         this.inputManager = new InputManager()
         this.inputManager.initMouseControls(this.field, () => this.onPointerDown(), () => this.onPointerUp())
 
-        this.enemies = Array(60).fill(0).map(() => new Enemy())
+        this.aliveEnemies = Array(120).fill(0).map(() => new Enemy())
+        this.antCircle = new AntCircle(this.aliveEnemies.slice(0, 60))
+        this.antCircle.position.set(GAME_WIDTH / 2 + 150, GAME_HEIGHT / 2)
 
-        this.antCircle = new AntCircle(this.enemies)
-        this.antCircle.position.set(GAME_WIDTH / 2, GAME_HEIGHT / 2)
+        this.antCircle2 = new AntCircle(this.aliveEnemies.slice(60, 120))
+        this.antCircle2.position.set(GAME_WIDTH / 2 - 150, GAME_HEIGHT / 2)
 
-        this.addChild(this.field, this.polyWalls, this.previewRope, this.rope, this.hook, this.antCircle, this.hedgehog)
+        this.addChild(this.field, this.polyWalls, this.previewRope, this.rope, this.hook, this.antCircle, this.antCircle2, this.hedgehog)
         this.blockPolygons.forEach(poly => this.drawPolygonWall(poly))
         this.polyWalls.cacheAsBitmap = true
+
+        this.uiOverlay = new GameFieldUI()
+        this.addChild(this.uiOverlay)
+    }
+
+    addPoints(value: number) {
+        this.points += value
+        this.uiOverlay.pointBar.pointTextObject.text = `${this.points}`
     }
 
     update() {
@@ -98,6 +114,7 @@ export class GameField extends Container {
         let mousePosition = this.inputManager.getMousePosition()
         this.hedgehog.update()
         this.antCircle.update(this.time)
+        this.antCircle2.update(this.time * 1.1 + 0.8)
 
         if (!this.inHookShooting) {
             if (this.inputManager.isMouseDown()) {
@@ -181,23 +198,31 @@ export class GameField extends Container {
             .duration(Math.sqrt(fullDistance) / PLAYER_HOOK_SPEED)
             .easing(Easing.Cubic.Out)
             .onUpdate((object) => {
+                if(!object || !object.x) {
+                    return
+                }
+
                 this.hedgehog.position = valToPosition(object.x)
 
                 // Kill all enemies near enough
-                for (let enemy of this.enemies) {
+                let indicesToRemove: number[] = []
+                for (let [index, enemy] of this.aliveEnemies.entries()) {
                     if (enemy.isKilledByPosition(this.hedgehog.position)) {
+                        this.addPoints(enemy.getPoints())
                         enemy.kill()
+                        indicesToRemove.push(index)
+                        this.deadEnemies.push(enemy)
                     }
                 }
+                this.aliveEnemies = this.aliveEnemies.filter((val, i) => !indicesToRemove.contains(i))
 
-                if (object.x > 0.8) {
+                if (object.x > 0.95) {
                     this.hedgehog.setState("IDLE")
                 }
                 this.rope.setFirstPoint(this.hedgehog.position)
             })
             .start()
             .promise()
-        this.rope.dropFirstPoint()
     }
 
     private reflectLine(startPath: Vector2D[], rayStart: Vector2D, rayEnd: Vector2D, maxReflections: number = 100): Vector2D[] {
@@ -345,6 +370,6 @@ export class GameField extends Container {
     }
 
     private updateTime() {
-        this.time += this.slowTime ? 0.2 : 1
+        this.time += this.slowTime ? 0.3 : 1
     }
 }

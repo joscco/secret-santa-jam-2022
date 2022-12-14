@@ -8,8 +8,9 @@ export type ENEMY_TYPE = "ANT" | "BUG"
 
 export class Enemy extends Container {
     killRadius = 40
-    private points: number = 100;
+    private points: number = 1;
     sprite: Sprite;
+    isDead: boolean = false
     private deadpointText: Text;
     private type: ENEMY_TYPE = "ANT";
 
@@ -24,7 +25,7 @@ export class Enemy extends Container {
             fontSize: 50
         }))
         this.deadpointText.anchor.set(0.5)
-        this.deadpointText.scale.set(0)
+        this.deadpointText.alpha = 0
 
         this.addChild(this.sprite, this.deadpointText)
     }
@@ -45,6 +46,7 @@ export class Enemy extends Container {
     kill() {
         this.scaleOut()
         this.blendInText()
+        this.isDead = true
     }
 
     private scaleOut() {
@@ -56,8 +58,8 @@ export class Enemy extends Container {
     }
 
     private blendInText() {
-        let scaleInTween = Tweener.of(this.deadpointText.scale)
-            .to({x: 1, y: 1})
+        let scaleInTween = Tweener.of(this.deadpointText)
+            .to({alpha: 1})
             .duration(300)
             .easing(Easing.Back.Out)
         let moveUpTween = Tweener.of(this.deadpointText.position)
@@ -71,5 +73,9 @@ export class Enemy extends Container {
 
         scaleInTween.chain(moveUpTween, alphaOutTween)
             .start()
+    }
+
+    getPoints() {
+        return this.points
     }
 }

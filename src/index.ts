@@ -47,7 +47,7 @@ const main = async () => {
         width: GAME_WIDTH,
         height: GAME_HEIGHT,
         resolution: window.devicePixelRatio || 1,
-        antialias: false
+        antialias: false,
     })
 
     // Display application properly
@@ -62,10 +62,10 @@ const main = async () => {
 
     let dirty: boolean = true
     var ticker = new Ticker();
+    ticker.maxFPS = 30
     ticker.add(() => {
         Tweener.update()
-            dirty = false
-            renderer.render(stage);
+        renderer.render(stage);
     });
 
     App = {stage: stage, ticker: ticker, renderer: renderer, registerChange: () => dirty = true}
