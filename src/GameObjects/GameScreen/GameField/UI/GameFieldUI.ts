@@ -13,7 +13,7 @@ export class GameFieldUI extends Container {
         this.roundSymbols = new RoundBar()
 
         this.pointBar = new PointBar()
-        this.pointBar.position.set(100, 100)
+        this.pointBar.position.set(100, 50)
         this.addChild(this.pointBar)
 
         this.energyBar = new EnergyBar()

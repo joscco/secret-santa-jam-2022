@@ -20,7 +20,7 @@ import {Rope} from "./Rope";
 import {PreviewRope} from "./PreviewRope";
 import Tweener from "../../../General/Tweener";
 import {Texture} from "@pixi/core";
-import {COLOR_FLOOR_0, COLOR_FLOOR_1, COLOR_FLOOR_2, COLOR_FLOOR_3, COLOR_FLOOR_4, COLOR_FLOOR_5} from "./Colors";
+import {COLOR_FLOOR_3, COLOR_FLOOR_4} from "./Colors";
 import {TextureAssetID} from "../../../General/AssetManager";
 import {Polygon2D} from "../../../General/Polygon2D";
 import {Easing} from "@tweenjs/tween.js";
@@ -73,7 +73,9 @@ export class GameField extends Container {
 
         this.blockPolygons = [
             new Polygon2D([
-                {x: 100, y: 100},
+                {x: 100, y: 200},
+                {x: 300, y: 200},
+                {x: 300, y: 100},
                 {x: GAME_WIDTH - 100, y: 100},
                 {x: GAME_WIDTH - 100, y: GAME_HEIGHT - 100},
                 {x: 100, y: GAME_HEIGHT - 100}
@@ -96,7 +98,7 @@ export class GameField extends Container {
         this.antCircle2 = new AntCircle(this.aliveEnemies.slice(60, 120))
         this.antCircle2.position.set(GAME_WIDTH / 2 - 150, GAME_HEIGHT / 2)
 
-        this.addChild(this.field, this.polyWalls, this.previewRope, this.rope, this.hook, this.antCircle, this.antCircle2, this.hedgehog)
+        this.addChild(this.field, this.polyWalls, this.antCircle, this.antCircle2, this.rope, this.hook, this.previewRope, this.hedgehog)
         this.blockPolygons.forEach(poly => this.drawPolygonWall(poly))
         this.polyWalls.cacheAsBitmap = true
 
@@ -198,7 +200,7 @@ export class GameField extends Container {
             .duration(Math.sqrt(fullDistance) / PLAYER_HOOK_SPEED)
             .easing(Easing.Cubic.Out)
             .onUpdate((object) => {
-                if(!object || !object.x) {
+                if (!object || !object.x) {
                     return
                 }
 
@@ -315,32 +317,18 @@ export class GameField extends Container {
         let background = new Sprite(Texture.WHITE)
         background.width = GAME_WIDTH
         background.height = GAME_HEIGHT
-        background.tint = COLOR_FLOOR_0
+        background.tint = 0x1e2e30
         container.addChild(background)
 
         // Drop Random Blobs in lighter color
         this.createEllipticRandomBackgroundSprites(
-            100, 200, COLOR_FLOOR_1, 50, 40, 3, 20, GAME_WIDTH, GAME_HEIGHT
+            100, 200, COLOR_FLOOR_3, 50, 40, 3, 20, GAME_WIDTH, GAME_HEIGHT
         ).forEach(sprite => {
             container.addChild(sprite)
         })
 
         this.createEllipticRandomBackgroundSprites(
-            100, 150, COLOR_FLOOR_2, 45, 45, 3, 20, GAME_WIDTH, GAME_HEIGHT
-        ).forEach(sprite => {
-            container.addChild(sprite)
-        })
-
-        // Drop even lighter colors
-        this.createEllipticRandomBackgroundSprites(
-            70, 120, COLOR_FLOOR_3, 53, 42, 0, 15, GAME_WIDTH - 300, GAME_HEIGHT - 300
-        ).forEach(sprite => {
-            container.addChild(sprite)
-        })
-
-        // Drop small line drops of very light color
-        this.createEllipticRandomBackgroundSprites(
-            50, 90, COLOR_FLOOR_4, 49, 32, 0, 10, GAME_WIDTH - 300, GAME_HEIGHT - 300
+            100, 150, COLOR_FLOOR_4, 45, 45, 3, 20, GAME_WIDTH, GAME_HEIGHT
         ).forEach(sprite => {
             container.addChild(sprite)
         })
@@ -363,7 +351,7 @@ export class GameField extends Container {
                 sprite.anchor.set(0.5, 1)
                 sprite.zIndex = sprite.position.y
                 sprite.scale.x = Math.random() > 0.5 ? 1 : -1
-                sprite.tint = [COLOR_FLOOR_3, COLOR_FLOOR_4, COLOR_FLOOR_5][Math.floor(Math.random() * 3)]
+                sprite.tint = [COLOR_FLOOR_3, COLOR_FLOOR_4][Math.floor(Math.random() * 2)]
                 this.polyWalls.addChild(sprite)
             }
         })
