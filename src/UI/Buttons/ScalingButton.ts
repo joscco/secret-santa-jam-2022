@@ -1,6 +1,8 @@
 import {Button} from "./Button";
 import {Texture} from "@pixi/core";
 import {SOUND_MANAGER} from "../../index";
+import Tweener from "../../General/Tweener";
+import {Easing} from "@tweenjs/tween.js";
 
 export abstract class ScalingButton extends Button {
     constructor() {
@@ -22,14 +24,20 @@ export abstract class ScalingButton extends Button {
     }
 
     async scaleUpTo(value: number, duration: number) {
+        await Tweener.of(this.scale)
+            .to({x: value, y: value})
+            .duration(duration)
+            .easing(Easing.Back.Out)
+            .start()
+            .promise()
     }
 
     scaleUp() {
-        this.scaleUpTo(1.2, 0.3)
+        this.scaleUpTo(1.2, 300)
     }
 
     scaleDown() {
-        this.scaleUpTo(1, 0.3)
+        this.scaleUpTo(1, 300)
     }
 }
 

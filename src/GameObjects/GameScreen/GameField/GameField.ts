@@ -238,7 +238,7 @@ export class GameField extends Container {
         }
 
         let movingObject: { position: Vector2D } | undefined = this.hedgehog
-        
+
         await Tweener.of(val)
             .to({x: 1})
             .duration(Math.sqrt(fullDistance) / PLAYER_HOOK_SPEED)

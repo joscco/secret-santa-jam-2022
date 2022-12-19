@@ -12,7 +12,7 @@ const INITIAL_GAMESTATE: GameState = {
 }
 
 export class GameData {
-    private GAME_STATE_KEY: string = "berndsBakeryGame"
+    private GAME_STATE_KEY: string = "hedgeHurl"
     private currentState: GameState
 
     constructor() {
@@ -44,7 +44,7 @@ export class GameData {
         try {
             localStorage.setItem(this.GAME_STATE_KEY, JSON.stringify(finalState))
         } catch (err) {
-            console.error("You must allow localStorage access in order for Bernd to remember your levels!", err)
+            console.error("You must allow localStorage access in order for HedgeHurl to remember your levels!", err)
         }
 
         this.currentState = finalState

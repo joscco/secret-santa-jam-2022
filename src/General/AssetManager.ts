@@ -101,7 +101,23 @@ const TEXTURE_MANIFEST = {
     antMountain: "gameScreen/antMountain",
     bumper: "gameScreen/bumper",
     hole: "gameScreen/hole",
-    arrow: "gameScreen/arrow"
+    arrow: "gameScreen/arrow",
+
+    // startScene
+    startButton: "startScreen/startButton",
+    titleLetter0: "startScreen/title_0",
+    titleLetter1: "startScreen/title_1",
+    titleLetter2: "startScreen/title_2",
+    titleLetter3: "startScreen/title_3",
+    titleLetter4: "startScreen/title_4",
+    titleLetter5: "startScreen/title_5",
+    titleLetter6: "startScreen/title_6",
+    titleLetter7: "startScreen/title_7",
+    titleLetter8: "startScreen/title_8",
+
+    // Level Screen
+    level1Bug: "levelScreen/level1Bug"
+
 } as const
 
 export type TextureAssetID = keyof typeof TEXTURE_MANIFEST

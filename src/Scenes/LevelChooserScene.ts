@@ -1,53 +1,29 @@
 import Scene from "./Basics/Scene";
-import {Text} from "pixi.js";
+import {Sprite, Text} from "pixi.js";
 import {LevelButton} from "../UI/Buttons/LevelButton";
-import {CustomApp, GAME_DATA, GAME_WIDTH, LANGUAGE_MANAGER} from "../index";
-import {ScalingButton} from "../UI/Buttons/ScalingButton";
-import {BackToStartScreenButton} from "../UI/Buttons/BackToStartScreenButton";
-import {LEVEL_MANIFEST} from "./Basics/LevelInitiator";
-import {Language, LanguageDependantItem} from "../General/LanguageManager";
-import {Tween} from "@tweenjs/tween.js";
-import {Vector2D} from "../General/Helpers";
+import {CustomApp, GAME_DATA, GAME_HEIGHT, GAME_WIDTH} from "../index";
+import {Texture} from "@pixi/core";
 
-export class LevelChooserScene extends Scene implements LanguageDependantItem {
+export class LevelChooserScene extends Scene {
 
+    background: Sprite
     title: Text
     levelButtons: LevelButton[]
-    backButton: ScalingButton
-    backgroundMoveTween?: Tween<Vector2D>
+    // backButton: ScalingButton
 
     constructor(app: CustomApp) {
         super();
         this.app = app
 
-        this.setupBackground()
+        this.background = new Sprite(Texture.WHITE)
+        this.background.tint = 0x1f2d2f
+        this.background.height = GAME_HEIGHT
+        this.background.width = GAME_WIDTH
+        this.addChild(this.background)
+
         this.title = this.setUpTitle()
         this.levelButtons = this.setUpLevelButtons()
-        this.backButton = this.setUpBackButton()
-
-        LANGUAGE_MANAGER.addLanguageItem(this)
-    }
-
-    setLanguage(newLanguage: Language): void {
-        this.title.text = newLanguage === "en" ? "Choose a level" : "Wähle ein Level"
-    }
-
-    private setupBackground() {
-        // let texture = ASSET_MANAGER.getTextureAsset("startScreenBackgroundPatternBrown")
-        // let scrollingBackground = new TilingSprite(texture)
-        // scrollingBackground.width = 2 * GAME_WIDTH
-        // scrollingBackground.height = 2 * GAME_HEIGHT
-        // scrollingBackground.texture.baseTexture.mipmap = MIPMAP_MODES.OFF
-        // scrollingBackground.clampMargin = 0.5
-        //
-        // this.backgroundMoveTween = gsap.to(scrollingBackground.tilePosition, {
-        //     x: -texture.width,
-        //     y: -texture.height,
-        //     duration: 15,
-        //     repeat: -1,
-        //     ease: Linear.easeNone
-        // })
-        // this.addChild(scrollingBackground);
+        // this.backButton = this.setUpBackButton()
     }
 
     private setUpTitle(): Text {
@@ -58,19 +34,10 @@ export class LevelChooserScene extends Scene implements LanguageDependantItem {
         return title
     }
 
-    beforeFadeIn() {
-        this.backgroundMoveTween?.resume()
-    }
-
-    afterFadeOut() {
-        this.backgroundMoveTween?.pause()
-    }
-
     private setUpLevelButtons(): LevelButton[] {
         let buttons = []
 
-        for (let element of LEVEL_MANIFEST) {
-            let n = element.level
+        for (let n of [1]) {
             let button = new LevelButton(n, n <= GAME_DATA.getUnlockedLevels())
             button.x = 200 + ((n - 1) % 8) * 215
             button.y = 325 + Math.floor((n - 1) / 8) * 240
@@ -85,12 +52,5 @@ export class LevelChooserScene extends Scene implements LanguageDependantItem {
             button.setEnabled(button.level <= GAME_DATA.getUnlockedLevels())
             button.updateTexture()
         })
-    }
-
-    private setUpBackButton(): ScalingButton {
-        let backToStartScreenButton = new BackToStartScreenButton()
-        backToStartScreenButton.position.set(80, 125)
-        this.addChild(backToStartScreenButton)
-        return backToStartScreenButton
     }
 }

@@ -717,7 +717,7 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">assets/levelScreen/firstBug.png</key>
+            <key type="filename">assets/levelScreen/level1Bug.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0,0</point_f>

@@ -16,6 +16,7 @@ import {StartScene} from "./Scenes/StartScene";
 // Type Change Imports
 import "./General/TypeChanges/Array"
 import "./General/TypeChanges/Graphics"
+import {Level1} from "./Scenes/Level1";
 
 export const GAME_WIDTH: number = 1920;
 export const GAME_HEIGHT: number = 1080;
@@ -106,10 +107,10 @@ const main = async () => {
 
     // Finally adding Scenes:
     SCENE_MANAGER.add("startScene", new StartScene(App))
-    // LEVEL_SCREEN = new LevelChooserScene(App)
-    // SCENE_MANAGER.add("levelChooserScene", LEVEL_SCREEN)
-    //
-    // LevelInitiator.addLevels(SCENE_MANAGER)
+    LEVEL_SCREEN = new LevelChooserScene(App)
+    SCENE_MANAGER.add("levelChooserScene", LEVEL_SCREEN)
+
+    SCENE_MANAGER.add("level_1", new Level1())
 
     SCENE_MANAGER.startWithTransition("startScene")
 };

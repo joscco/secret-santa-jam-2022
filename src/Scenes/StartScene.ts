@@ -1,49 +1,71 @@
-import {Text} from 'pixi.js';
-import {CustomApp, GAME_HEIGHT, GAME_WIDTH} from "../index";
+import {Container, Sprite, Text} from 'pixi.js';
+import {ASSET_MANAGER, CustomApp, GAME_HEIGHT, GAME_WIDTH} from "../index";
 import Scene from "./Basics/Scene";
+import {StartButton} from "../UI/Buttons/StartButton";
+import {Texture} from "@pixi/core";
+import {TextureAssetID} from "../General/AssetManager";
 import Tweener from "../General/Tweener";
 import {Easing} from "@tweenjs/tween.js";
-import {GameField} from "../GameObjects/GameScreen/GameField/GameField";
 
 export class StartScene extends Scene {
 
+    background: Sprite;
+    // stones: Sprite[]
+
     pretitle: Text;
+    titleContainer: Container;
+    titleLetters: Sprite[] = []
+
+    startButton: StartButton
+
     started: boolean = false
-    gameField: GameField
 
     constructor(app: CustomApp) {
         super();
         this.app = app
 
+        this.background = new Sprite(Texture.WHITE)
+        this.background.tint = 0x235552
+        this.background.width = GAME_WIDTH
+        this.background.height = GAME_HEIGHT
+        this.addChild(this.background)
+
         this.pretitle = this.addPretitle()
-        this.pretitle.position.set(GAME_WIDTH / 2, GAME_HEIGHT / 2)
+        this.pretitle.position.set(GAME_WIDTH / 2, 300)
         this.pretitle.scale.set(0)
 
-        this.gameField = new GameField()
-        this.addChild(this.gameField)
+        this.startButton = new StartButton()
+        this.startButton.position.set(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 300)
+        this.addChild(this.startButton)
+
+        this.titleContainer = new Container()
+        this.addChild(this.titleContainer)
+
+        let letterX = 0
+        Array.from(Array(9).keys()).map(key => {
+            if (key === 5) {
+                letterX = 0
+            }
+            let sprite = new Sprite(ASSET_MANAGER.getTextureAsset(`titleLetter${key}` as TextureAssetID))
+            sprite.position.set(
+                key < 5 ? 525 + letterX : 600 + letterX,
+                key < 5 ? GAME_HEIGHT + 150 : GAME_HEIGHT + 400
+            )
+            letterX += sprite.width
+            this.titleContainer.addChild(sprite)
+            this.titleLetters.push(sprite)
+        })
     }
 
     async start(): Promise<void> {
         if (!this.started) {
-            await Tweener.of(this.pretitle.scale)
-                .to({x: 1, y: 1}, 500)
-                .easing(Easing.Back.Out)
-                .start()
-                .promise()
-            Tweener.of(this.pretitle)
-                .to({y: GAME_HEIGHT / 2 - 400}, 300)
-                .easing(Easing.Quadratic.InOut)
-                .start()
+            this.blendInTitle()
         }
         this.started = true
     }
 
-    update(delta: number) {
-        this.gameField.update()
-    }
-
     private addPretitle(): Text {
-        let pretitle = new Text("Apple Grab", {
+        let pretitle = new Text("joscco presents", {
             fontFamily: "Futurahandwritten",
             fontWeight: "bold",
             fontSize: 50,
@@ -52,5 +74,17 @@ export class StartScene extends Scene {
         pretitle.anchor.set(0.5)
         this.addChild(pretitle)
         return pretitle
+    }
+
+    private blendInTitle() {
+        this.titleLetters.forEach(async (letter, index) => {
+            await Tweener.of(letter.position)
+                .to({y: index < 5 ? 150 : 400})
+                .duration(1000)
+                .delay(index * 200)
+                .easing(Easing.Back.InOut)
+                .start()
+                .promise()
+        })
     }
 }

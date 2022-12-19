@@ -1,6 +1,7 @@
 import {ScalingButton} from "./ScalingButton";
-import {SCENE_MANAGER, SOUND_MANAGER} from "../../index";
+import {ASSET_MANAGER, SCENE_MANAGER, SOUND_MANAGER} from "../../index";
 import {Text, Texture} from "pixi.js";
+import {TextureAssetID} from "../../General/AssetManager";
 
 export class LevelButton extends ScalingButton {
 
@@ -18,17 +19,16 @@ export class LevelButton extends ScalingButton {
     }
 
     getTexture(): Texture | null {
-        return null//ASSET_MANAGER.getTextureAsset(LevelInitiator.getRecipeForDay(this.level))
+        return ASSET_MANAGER.getTextureAsset(`level${this.level}Bug` as TextureAssetID)
     }
 
     constructor(n: number, enabled: boolean) {
         super();
         this.level = n
-        this.sprite.scale.set(0.43)
 
         this.text = new Text(this.level, {
             fontFamily: "Futurahandwritten",
-            fontSize: 100,
+            fontSize: 60,
             strokeThickness: 15,
             lineJoin: "round"
         })
