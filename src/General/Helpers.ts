@@ -48,6 +48,33 @@ export function vectorDistance(a: Vector2D, b: Vector2D): number {
     return Math.sqrt(quadVectorDistance(a, b))
 }
 
+// Projects Vector a onto vector b
+export function vectorProject(a: Vector2D, b: Vector2D): Vector2D {
+    const k = vectorDot(a, b) / vectorDot(b, b);
+    return vectorMultiply(k, b);
+}
+
+export function distanceSegmentToPoint(start: Vector2D, end: Vector2D, point: Vector2D) {
+    const startToPoint = vectorSub(point, start);
+    const segment = vectorSub(end, start);
+
+    // Get point D by taking the projection of AC onto AB then adding the offset of A
+    const pointProjection = vectorAdd(vectorProject(startToPoint, segment), start);
+
+    const startToProjection = vectorSub(pointProjection, start);
+    // The point projection might not be on segment (but on an extension)
+    const k = Math.abs(segment.x) > Math.abs(segment.y) ? startToProjection.x / segment.x : startToProjection.y / segment.y;
+
+    // Check if the pointProject is off either end of the line segment
+    if (k <= 0.0) {
+        return vectorDistance(point, start);
+    } else if (k >= 1.0) {
+        return vectorDistance(point, end);
+    }
+
+    return vectorDistance(point, pointProjection);
+}
+
 export function quadVectorLength(direction: Vector2D) {
     return quadVectorDistance({x: 0, y: 0}, direction)
 }

@@ -26,6 +26,7 @@ import {Easing} from "@tweenjs/tween.js";
 import {Enemy} from "./Enemies/Enemy";
 import {AntCircle} from "./Enemies/AntCircle";
 import {GameFieldUI} from "./UI/GameFieldUI";
+import {Fruit} from "./Fruit/Fruit";
 
 const PLAYER_HOOK_SPEED = 1 / 30
 const HOOK_HOOK_DURATION = 100
@@ -43,6 +44,8 @@ export class GameField extends Container {
     deadEnemies: Enemy[] = []
     antCircle: AntCircle
     antCircle2: AntCircle
+
+    fruits: Fruit[] = []
 
     hedgehog: Hedgehog
     rope: Rope
@@ -101,6 +104,12 @@ export class GameField extends Container {
         this.blockPolygons.forEach(poly => this.drawPolygonWall(poly))
         this.polyWalls.cacheAsBitmap = true
 
+        // Set fruits
+        let apple = new Fruit("apple")
+        apple.position.set(900, 600)
+        this.addChild(apple)
+        this.fruits.push(apple)
+
         this.uiOverlay = new GameFieldUI()
         this.addChild(this.uiOverlay)
     }
@@ -127,12 +136,22 @@ export class GameField extends Container {
             let desiredRotation = Math.atan2(direction.y, direction.x)
             let harmonizedHookRotation = harmonizeAngle(desiredRotation, this.hook.rotation)
             this.hook.rotation = lerp(this.hook.rotation, harmonizedHookRotation, 0.2)
-            this.hook.position = vectorLerp(this.hook.position, this.hedgehog.position, 0.2)
+            this.hook.position = this.hedgehog.position
         }
     }
 
     updatePreviewRope(mousePosition: Vector2D) {
         this.linePath = this.reflectLine([this.hedgehog.getGlobalPosition()], this.hedgehog.getGlobalPosition(), mousePosition)
+
+        // Check if Path hits fruit and highligh those
+        for (let fruit of this.fruits) {
+            if (fruit.isHitByPath(this.linePath)) {
+                fruit.highlight()
+            } else {
+                fruit.unhighlight()
+            }
+        }
+
         this.previewRope.update(this.linePath)
     }
 
@@ -144,6 +163,12 @@ export class GameField extends Container {
 
     private async onPointerUp() {
         this.slowTime = false
+
+        // Unhighlight all fruit that might have been highlighted by rope
+        for (let fruit of this.fruits) {
+            fruit.unhighlight()
+        }
+
         Tweener.of(this.previewRope).to({alpha: 0}).duration(300).start()
         if (!this.drawingToHook && !this.inHookShooting) {
             this.inHookShooting = true
@@ -194,6 +219,8 @@ export class GameField extends Container {
             return vectorLerp(linePath[currentIndex], linePath[currentIndex + 1], pathLerp)
         }
 
+        let movingObject: { position: Vector2D } = this.hedgehog
+
         await Tweener.of(val)
             .to({x: 1})
             .duration(Math.sqrt(fullDistance) / PLAYER_HOOK_SPEED)
@@ -203,12 +230,13 @@ export class GameField extends Container {
                     return
                 }
 
-                this.hedgehog.position = valToPosition(object.x)
+                movingObject.position = valToPosition(object.x)
 
                 // Kill all enemies near enough
                 let indicesToRemove: number[] = []
+
                 for (let [index, enemy] of this.aliveEnemies.entries()) {
-                    if (enemy.isKilledByPosition(this.hedgehog.position)) {
+                    if (enemy.isKilledByPosition(movingObject.position)) {
                         this.addPoints(enemy.getPoints())
                         enemy.kill()
                         indicesToRemove.push(index)
@@ -217,10 +245,20 @@ export class GameField extends Container {
                 }
                 this.aliveEnemies = this.aliveEnemies.filter((val, i) => !indicesToRemove.contains(i))
 
+                // Change to fruit near enough
+                for (let fruit of this.fruits) {
+                    if (fruit.isAffectedByPosition(movingObject.position)) {
+                        this.hedgehog.setState("IDLE")
+                        movingObject = fruit
+                        break
+                    }
+                }
+
                 if (object.x > 0.95) {
                     this.hedgehog.setState("IDLE")
                 }
-                this.rope.setFirstPoint(this.hedgehog.position)
+
+                this.rope.setFirstPoint(movingObject.position)
             })
             .start()
             .promise()
@@ -307,16 +345,18 @@ export class GameField extends Container {
             let numberOfRocks = Math.sqrt(distanceX * distanceX * 0.8 + distanceY * distanceY) / 30
 
             for (let polIndex = 0; polIndex < numberOfRocks; polIndex++) {
-                let randomIndex = Math.floor(Math.random() * 14)
-                // if (randomIndex < 15) {
-                //     randomIndex = 2
-                // } else if(randomIndex < 40) {
-                //     randomIndex = 3
-                // } else if(randomIndex < 55) {
-                //     randomIndex = 8
-                // } else {
-                //     randomIndex %= 14
-                // }
+                let randomIndex = Math.floor(Math.random() * 100)
+                if (randomIndex < 20) {
+                    randomIndex = 2
+                } else if (randomIndex < 40) {
+                    randomIndex = 3
+                } else if (randomIndex < 55) {
+                    randomIndex = 7
+                } else if (randomIndex < 65) {
+                    randomIndex = 12
+                } else {
+                    randomIndex %= 14
+                }
 
                 let sprite = new Sprite(ASSET_MANAGER.getTextureAsset(`rock${randomIndex}` as TextureAssetID))
                 sprite.position = vectorAdd(vectorLerp(start, end, polIndex / numberOfRocks), {

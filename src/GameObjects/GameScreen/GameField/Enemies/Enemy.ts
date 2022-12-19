@@ -34,7 +34,6 @@ export class Enemy extends Container {
         return vectorDistance(this.getGlobalPosition(), playerPosition) <= this.killRadius
     }
 
-
     setType(type: ENEMY_TYPE) {
         this.type = type
     }

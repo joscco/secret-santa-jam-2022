@@ -75,6 +75,12 @@ const TEXTURE_MANIFEST = {
     bug: "gameScreen/enemies/bug",
     bombBug: "gameScreen/enemies/bombBug",
 
+    // ui
+    innerFruitBar: "gameScreen/ui/energyBarInner",
+    outerFruitBar: "gameScreen/ui/energyBarOuter",
+    emptyStar: "gameScreen/ui/star_empty",
+    outerStar: "gameScreen/ui/star_full",
+
     // rocks
     rock0: "gameScreen/rocks/rock_0",
     rock1: "gameScreen/rocks/rock_1",
