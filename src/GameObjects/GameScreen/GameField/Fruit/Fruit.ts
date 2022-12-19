@@ -4,6 +4,8 @@ import {ASSET_MANAGER} from "../../../../index";
 import {TextureAssetID} from "../../../../General/AssetManager";
 import {distanceSegmentToPoint, Vector2D, vectorDistance} from "../../../../General/Helpers";
 import {OutlineFilter} from "@pixi/filter-outline";
+import Tweener from "../../../../General/Tweener";
+import {Easing} from "@tweenjs/tween.js";
 
 export type FruitType = "pear" | "apple" | "ruebe" | "banana"
 
@@ -27,9 +29,8 @@ export class Fruit extends Container {
     }
 
     isAffectedByPosition(hedgeHogPosition: Vector2D): boolean {
-        return vectorDistance(hedgeHogPosition, this.position) <= this.hitRadius
+        return vectorDistance(hedgeHogPosition, this.position) <= this.hitRadius + 2
     }
-
 
     isHitByPath(linePath: Vector2D[]): boolean {
         for (let [start, end] of linePath.slideWindow(2)) {
@@ -40,6 +41,26 @@ export class Fruit extends Container {
         return false
     }
 
+    private isHitByLine(start: Vector2D, end: Vector2D): boolean {
+        let distance = distanceSegmentToPoint(start, end, this.getGlobalPosition())
+        return distance <= this.hitRadius
+    }
+
+    async drop() {
+        await Tweener.of(this.liveBar.scale)
+            .to({y: 0})
+            .duration(300)
+            .easing(Easing.Quadratic.InOut)
+            .start()
+            .promise()
+        await Tweener.of(this.scale)
+            .to({x: 0, y: 0})
+            .duration(300)
+            .easing(Easing.Back.In)
+            .start()
+            .promise()
+    }
+
     highlight() {
         this.sprite.filters = [new OutlineFilter(5, 0xf9f871)]
     }
@@ -48,8 +69,4 @@ export class Fruit extends Container {
         this.sprite.filters = []
     }
 
-    private isHitByLine(start: Vector2D, end: Vector2D): boolean {
-        let distance = distanceSegmentToPoint(start, end, this.getGlobalPosition())
-        return distance <= this.hitRadius
-    }
 }

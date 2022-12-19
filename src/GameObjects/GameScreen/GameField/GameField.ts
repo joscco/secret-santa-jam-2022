@@ -27,6 +27,7 @@ import {Enemy} from "./Enemies/Enemy";
 import {AntCircle} from "./Enemies/AntCircle";
 import {GameFieldUI} from "./UI/GameFieldUI";
 import {Fruit} from "./Fruit/Fruit";
+import {Hole} from "./Hole";
 
 const PLAYER_HOOK_SPEED = 1 / 30
 const HOOK_HOOK_DURATION = 100
@@ -46,6 +47,8 @@ export class GameField extends Container {
     antCircle2: AntCircle
 
     fruits: Fruit[] = []
+
+    holes: Hole[] = []
 
     hedgehog: Hedgehog
     rope: Rope
@@ -100,15 +103,18 @@ export class GameField extends Container {
         this.antCircle2 = new AntCircle(this.aliveEnemies.slice(60, 120))
         this.antCircle2.position.set(GAME_WIDTH / 2 - 150, GAME_HEIGHT / 2)
 
-        this.addChild(this.field, this.polyWalls, this.antCircle, this.antCircle2, this.rope, this.hook, this.previewRope, this.hedgehog)
-        this.blockPolygons.forEach(poly => this.drawPolygonWall(poly))
-        this.polyWalls.cacheAsBitmap = true
+        let hole = new Hole()
+        hole.position.set(1100, 500)
+        this.holes.push(hole)
 
         // Set fruits
         let apple = new Fruit("apple")
         apple.position.set(900, 600)
-        this.addChild(apple)
         this.fruits.push(apple)
+
+        this.addChild(this.field, this.polyWalls, ...this.holes, this.antCircle, this.antCircle2, this.rope, this.hook, this.previewRope, ...this.fruits, this.hedgehog)
+        this.blockPolygons.forEach(poly => this.drawPolygonWall(poly))
+        this.polyWalls.cacheAsBitmap = true
 
         this.uiOverlay = new GameFieldUI()
         this.addChild(this.uiOverlay)
@@ -152,6 +158,14 @@ export class GameField extends Container {
             }
         }
 
+        for (let hole of this.holes) {
+            if (hole.isHitByPath(this.linePath)) {
+                hole.highlight()
+            } else {
+                hole.unhighlight()
+            }
+        }
+
         this.previewRope.update(this.linePath)
     }
 
@@ -167,6 +181,10 @@ export class GameField extends Container {
         // Unhighlight all fruit that might have been highlighted by rope
         for (let fruit of this.fruits) {
             fruit.unhighlight()
+        }
+
+        for (let hole of this.holes) {
+            hole.unhighlight()
         }
 
         Tweener.of(this.previewRope).to({alpha: 0}).duration(300).start()
@@ -219,8 +237,8 @@ export class GameField extends Container {
             return vectorLerp(linePath[currentIndex], linePath[currentIndex + 1], pathLerp)
         }
 
-        let movingObject: { position: Vector2D } = this.hedgehog
-
+        let movingObject: { position: Vector2D } | undefined = this.hedgehog
+        
         await Tweener.of(val)
             .to({x: 1})
             .duration(Math.sqrt(fullDistance) / PLAYER_HOOK_SPEED)
@@ -230,27 +248,39 @@ export class GameField extends Container {
                     return
                 }
 
-                movingObject.position = valToPosition(object.x)
+                if (movingObject) {
+                    movingObject.position = valToPosition(object.x)
 
-                // Kill all enemies near enough
-                let indicesToRemove: number[] = []
+                    // Kill all enemies near enough
+                    let indicesToRemove: number[] = []
 
-                for (let [index, enemy] of this.aliveEnemies.entries()) {
-                    if (enemy.isKilledByPosition(movingObject.position)) {
-                        this.addPoints(enemy.getPoints())
-                        enemy.kill()
-                        indicesToRemove.push(index)
-                        this.deadEnemies.push(enemy)
+                    for (let [index, enemy] of this.aliveEnemies.entries()) {
+                        if (enemy.isKilledByPosition(movingObject.position)) {
+                            this.addPoints(enemy.getPoints())
+                            enemy.kill()
+                            indicesToRemove.push(index)
+                            this.deadEnemies.push(enemy)
+                        }
                     }
-                }
-                this.aliveEnemies = this.aliveEnemies.filter((val, i) => !indicesToRemove.contains(i))
+                    this.aliveEnemies = this.aliveEnemies.filter((val, i) => !indicesToRemove.contains(i))
 
-                // Change to fruit near enough
-                for (let fruit of this.fruits) {
-                    if (fruit.isAffectedByPosition(movingObject.position)) {
-                        this.hedgehog.setState("IDLE")
-                        movingObject = fruit
-                        break
+                    // Change to fruit near enough
+                    for (let fruit of this.fruits) {
+                        if (fruit.isAffectedByPosition(movingObject.position)) {
+                            this.hedgehog.setState("IDLE")
+                            movingObject = fruit
+                            break
+                        }
+                    }
+
+                    if (movingObject instanceof Fruit) {
+                        for (let hole of this.holes) {
+                            if (hole.isAffectedByPosition(movingObject.position)) {
+                                (movingObject as Fruit).drop()
+                                movingObject = undefined
+                                break
+                            }
+                        }
                     }
                 }
 
@@ -258,7 +288,13 @@ export class GameField extends Container {
                     this.hedgehog.setState("IDLE")
                 }
 
-                this.rope.setFirstPoint(movingObject.position)
+                if (movingObject) {
+                    this.rope.setFirstPoint(movingObject.position)
+                } else {
+                    this.rope.setPath([])
+                }
+
+
             })
             .start()
             .promise()
