@@ -1,13 +1,11 @@
 import {AnimatedSprite, Container} from "pixi.js";
 import {ASSET_MANAGER} from "../../../index";
 import {Texture} from "@pixi/core";
-import {BlinkingEyes} from "../../Characters/BlinkingEyes";
 
 export type HedgehogState = "ROLLING" | "IDLE" | "PREROLLING"
 
 export class Hedgehog extends Container {
     state: HedgehogState = "IDLE"
-    eyes: BlinkingEyes
     body: AnimatedSprite
     rollTextures: Texture[]
     idleTextures: Texture[]
@@ -30,12 +28,6 @@ export class Hedgehog extends Container {
         this.body.play()
         this.body.anchor.set(0.5)
 
-        this.eyes = new BlinkingEyes(ASSET_MANAGER.getTextureAsset("hedgehog_eyes_open"), ASSET_MANAGER.getTextureAsset("hedgehog_eyes_closed"))
-        this.eyes.startBlinking()
-        this.eyes.position.set(7, 13)
-
-        this.body.addChild(this.eyes)
-
         this.addChild(this.body)
     }
 
@@ -44,17 +36,14 @@ export class Hedgehog extends Container {
 
         if (this.state === "IDLE") {
             this.body.textures = this.idleTextures
-            this.eyes.alpha = 1
         }
 
         if (this.state === "ROLLING") {
             this.body.textures = this.rollTextures
-            this.eyes.alpha = 0
         }
 
         if (this.state === "PREROLLING") {
             this.body.textures = this.betweenTextures
-            this.eyes.alpha = 0
         }
 
         this.body.play()

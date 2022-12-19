@@ -20,7 +20,6 @@ import {Rope} from "./Rope";
 import {PreviewRope} from "./PreviewRope";
 import Tweener from "../../../General/Tweener";
 import {Texture} from "@pixi/core";
-import {COLOR_FLOOR_3, COLOR_FLOOR_4} from "./Colors";
 import {TextureAssetID} from "../../../General/AssetManager";
 import {Polygon2D} from "../../../General/Polygon2D";
 import {Easing} from "@tweenjs/tween.js";
@@ -269,8 +268,8 @@ export class GameField extends Container {
             let length = vectorDistance(lastPoint, finalIntersection)
 
             // Den Teil hier besser aufschreiben:
-            // Idee: Gehe vom eigentlichen Schnittpunkt wieder ein Stück zurück
-            // In normalenrichtung von der Schnittlinie soll dabei der Abstand konstant sein
+            // Idee: Gehe vom eigentlichen Schnittpunkt wieder ein Stück zurück,
+            // in Normalenrichtung von der Schnittlinie soll dabei der Abstand konstant sein.
             let distanceSmallerNeeded = 25 / Math.sin(intersectionPoints[0].cutAngle)
             let preIntersectionPoint = vectorLerp(lastPoint, finalIntersection, (length - distanceSmallerNeeded) / length)
             result.push(preIntersectionPoint)
@@ -286,30 +285,6 @@ export class GameField extends Container {
         return result
     }
 
-    private createEllipticRandomBackgroundSprites(
-        minAmount: number, maxAmount: number,
-        tint: number, offsetX: number, offsetY: number,
-        minIndex: number, maxIndex: number,
-        maxRadiusX: number, maxRadiusY: number,
-        center: Vector2D = {x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2}): Sprite[] {
-        let result: Sprite[] = []
-        let amount = minAmount + Math.floor(Math.random() * (maxAmount - minAmount))
-        for (let i = 0; i < amount; i++) {
-            let bigDropIndex = minIndex + Math.floor(Math.random() * (maxIndex - minIndex))
-            let bigDropTexture = ASSET_MANAGER.getTextureAsset(`floor_decor_${bigDropIndex}` as TextureAssetID)
-            let bigDrop = new Sprite(bigDropTexture)
-            bigDrop.anchor.set(0.5)
-            let x = Math.floor((Math.random() * maxRadiusX - maxRadiusX / 2) / offsetX) * offsetX
-            let y = Math.floor((Math.random() * maxRadiusY - maxRadiusY / 2) / offsetY) * offsetY
-            bigDrop.position.set(center.x + x, center.y + y)
-            bigDrop.scale.x = Math.random() > 0.5 ? 1 : -1
-            bigDrop.tint = tint
-            result.push(bigDrop)
-        }
-        return result
-    }
-
-
     private initRandomField(): Container {
         // Start with basic background
         let container = new Container()
@@ -317,21 +292,8 @@ export class GameField extends Container {
         let background = new Sprite(Texture.WHITE)
         background.width = GAME_WIDTH
         background.height = GAME_HEIGHT
-        background.tint = 0x1e2e30
+        background.tint = 0x235552
         container.addChild(background)
-
-        // Drop Random Blobs in lighter color
-        this.createEllipticRandomBackgroundSprites(
-            100, 200, COLOR_FLOOR_3, 50, 40, 3, 20, GAME_WIDTH, GAME_HEIGHT
-        ).forEach(sprite => {
-            container.addChild(sprite)
-        })
-
-        this.createEllipticRandomBackgroundSprites(
-            100, 150, COLOR_FLOOR_4, 45, 45, 3, 20, GAME_WIDTH, GAME_HEIGHT
-        ).forEach(sprite => {
-            container.addChild(sprite)
-        })
 
         // Make the background easy to save and return
         container.cacheAsBitmap = true
@@ -342,16 +304,28 @@ export class GameField extends Container {
         poly.forEachSideDo((start, end) => {
             let distanceX = Math.abs(end.x - start.x)
             let distanceY = Math.abs(end.y - start.y)
-            let numberOfPollers = Math.sqrt(distanceX * distanceX * 0.8 + distanceY * distanceY) / 65
+            let numberOfRocks = Math.sqrt(distanceX * distanceX * 0.8 + distanceY * distanceY) / 30
 
-            for (let polIndex = 0; polIndex < numberOfPollers; polIndex++) {
-                let randomIndex = Math.floor(Math.random() * 5)
-                let sprite = new Sprite(ASSET_MANAGER.getTextureAsset(`poller${randomIndex}` as TextureAssetID))
-                sprite.position = vectorAdd(vectorLerp(start, end, polIndex / numberOfPollers), {x: 0, y: 30})
-                sprite.anchor.set(0.5, 1)
+            for (let polIndex = 0; polIndex < numberOfRocks; polIndex++) {
+                let randomIndex = Math.floor(Math.random() * 14)
+                // if (randomIndex < 15) {
+                //     randomIndex = 2
+                // } else if(randomIndex < 40) {
+                //     randomIndex = 3
+                // } else if(randomIndex < 55) {
+                //     randomIndex = 8
+                // } else {
+                //     randomIndex %= 14
+                // }
+
+                let sprite = new Sprite(ASSET_MANAGER.getTextureAsset(`rock${randomIndex}` as TextureAssetID))
+                sprite.position = vectorAdd(vectorLerp(start, end, polIndex / numberOfRocks), {
+                    x: -15 + Math.random() * 30,
+                    y: Math.random() * 30
+                })
+                sprite.anchor.set(0.5, 0.95)
                 sprite.zIndex = sprite.position.y
                 sprite.scale.x = Math.random() > 0.5 ? 1 : -1
-                sprite.tint = [COLOR_FLOOR_3, COLOR_FLOOR_4][Math.floor(Math.random() * 2)]
                 this.polyWalls.addChild(sprite)
             }
         })
