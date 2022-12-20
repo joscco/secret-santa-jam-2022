@@ -1,13 +1,11 @@
 import {Texture} from "@pixi/core";
 import {Assets} from "@pixi/assets";
-import {App, SCENE_MANAGER} from "../index";
 import {LoadingScene} from "../Scenes/LoadingScene";
 import {Spritesheet} from "pixi.js";
 
 export class AssetManager {
     NUMBER_SPRITE_SHEETS = 1
     private MAIN_FONT?: FontFace
-    LOADING_SCENE_ASSETS?: LoadingSceneAssets
     private ASSETS?: Spritesheet[]
 
     loadingScene?: LoadingScene
@@ -33,18 +31,15 @@ export class AssetManager {
         Assets.add("font", "assets/fonts/FuturaHandwritten.ttf")
     }
 
-    async startLoadingScreen() {
+    async loadLoadingScreenAssets() {
         this.MAIN_FONT = await Assets.load("font") as FontFace
-        this.loadingScene = new LoadingScene(App)
-        SCENE_MANAGER.add("loadingScene", this.loadingScene)
     }
 
-    async startLoadingOtherAssets() {
+    async loadMainAssets(loadingScene: LoadingScene) {
         Assets.loader.reset()
         this.ASSETS = []
         for (let i = 0; i < this.NUMBER_SPRITE_SHEETS; i++) {
-            let sheet = await Assets.load(`assets/spritesheets/sheet-${i}.json`)
-            this.loadingScene!.setProgress((i + 1) / this.NUMBER_SPRITE_SHEETS)
+            let sheet = await Assets.load(`assets/spritesheets/sheet-${i}.json`, (i) => loadingScene.setProgress(i))
             this.ASSETS.push(sheet)
         }
     }
@@ -79,7 +74,7 @@ const TEXTURE_MANIFEST = {
     innerFruitBar: "gameScreen/ui/energyBarInner",
     outerFruitBar: "gameScreen/ui/energyBarOuter",
     emptyStar: "gameScreen/ui/star_empty",
-    outerStar: "gameScreen/ui/star_full",
+    fullStar: "gameScreen/ui/star_full",
 
     // rocks
     rock0: "gameScreen/rocks/rock_0",

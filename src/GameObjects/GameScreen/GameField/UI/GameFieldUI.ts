@@ -1,22 +1,31 @@
-import {Container} from "pixi.js";
-import {RoundBar} from "./RoundBar";
-import {EnergyBar} from "./EnergyBar";
-import {PointBar} from "./PointBar";
+import {Container, Text} from "pixi.js";
+import {Star} from "./Star";
 
 export class GameFieldUI extends Container {
-    roundSymbols: RoundBar
-    pointBar: PointBar
-    energyBar: EnergyBar
+    levelText: Text
+    pointsText: Text
+    pointsNumberText: Text
+    stars: Star[]
 
-    constructor() {
+    constructor(level: number, starPoints: number[], startPoints: number) {
         super();
-        this.roundSymbols = new RoundBar()
+        this.levelText = new Text(`LEVEL ${level}`, {fontFamily: "Futurahandwritten", fontSize: 60, fill: 0xffffff})
+        this.levelText.position.set(50, 40)
 
-        this.pointBar = new PointBar()
-        this.pointBar.position.set(100, 50)
-        this.addChild(this.pointBar)
+        this.pointsText = new Text("POINTS:", {fontFamily: "Futurahandwritten", fontSize: 50, fill: 0x000000})
+        this.pointsText.position.set(50, 110)
 
-        this.energyBar = new EnergyBar()
+        this.pointsNumberText = new Text(`${startPoints}`, {fontFamily: "Futurahandwritten", fontSize: 50, fill: 0xffffff})
+        this.pointsNumberText.position.set(250, 110)
+
+        this.stars = starPoints.map((points, index) => {
+            let star = new Star(points)
+            star.position.set(85 + index * 75, 200)
+            this.addChild(star)
+            return star
+        })
+
+        this.addChild(this.levelText, this.pointsText, this.pointsNumberText, ...this.stars)
     }
 
 }

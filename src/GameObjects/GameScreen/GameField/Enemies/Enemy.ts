@@ -8,7 +8,7 @@ export type ENEMY_TYPE = "ANT" | "BUG"
 
 export class Enemy extends Container {
     killRadius = 40
-    private points: number = 1;
+    private points: number = 5;
     sprite: Sprite;
     isDead: boolean = false
     private deadpointText: Text;

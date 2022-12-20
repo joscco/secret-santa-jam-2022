@@ -4,15 +4,11 @@ import {Hook} from "./Hook";
 import {ASSET_MANAGER, GAME_HEIGHT, GAME_WIDTH} from "../../../index";
 import {InputManager} from "../../../General/InputManager";
 import {
-    findLineIntersection,
     harmonizeAngle,
     lerp,
-    mirror,
     Vector2D,
     vectorAdd,
     vectorDistance,
-    vectorDot,
-    vectorLength,
     vectorLerp,
     vectorSub
 } from "../../../General/Helpers";
@@ -28,6 +24,8 @@ import {AntCircle} from "./Enemies/AntCircle";
 import {GameFieldUI} from "./UI/GameFieldUI";
 import {Fruit} from "./Fruit/Fruit";
 import {Hole} from "./Hole";
+import {LineReflector} from "./LineReflector";
+import {Bumper} from "./Bumper";
 
 const PLAYER_HOOK_SPEED = 1 / 30
 const HOOK_HOOK_DURATION = 100
@@ -47,8 +45,8 @@ export class GameField extends Container {
     antCircle2: AntCircle
 
     fruits: Fruit[] = []
-
     holes: Hole[] = []
+    bumpers: Bumper[] = []
 
     hedgehog: Hedgehog
     rope: Rope
@@ -62,6 +60,8 @@ export class GameField extends Container {
 
     points: number = 0
     uiOverlay: GameFieldUI
+
+    reflector: LineReflector
 
     constructor() {
         super()
@@ -78,18 +78,18 @@ export class GameField extends Container {
 
         this.blockPolygons = [
             new Polygon2D([
-                {x: 100, y: 200},
-                {x: 300, y: 200},
-                {x: 300, y: 100},
+                {x: 100, y: 400},
+                {x: 450, y: 400},
+                {x: 450, y: 100},
                 {x: GAME_WIDTH - 100, y: 100},
                 {x: GAME_WIDTH - 100, y: GAME_HEIGHT - 100},
                 {x: 100, y: GAME_HEIGHT - 100}
             ]),
             new Polygon2D([
-                {x: 300, y: 300},
-                {x: 500, y: 300},
-                {x: 400, y: 700}
+                {x: 1300, y: 300},
+                {x: 1300, y: 700},
             ])]
+
         this.polyWalls = new Container()
         this.polyWalls.sortableChildren = true
 
@@ -107,22 +107,33 @@ export class GameField extends Container {
         hole.position.set(1100, 500)
         this.holes.push(hole)
 
+        let bumper = new Bumper()
+        bumper.position.set(1100, 800)
+        this.bumpers.push(bumper)
+
+        this.reflector = new LineReflector(this.blockPolygons, this.bumpers)
+
         // Set fruits
         let apple = new Fruit("apple")
         apple.position.set(900, 600)
         this.fruits.push(apple)
 
-        this.addChild(this.field, this.polyWalls, ...this.holes, this.antCircle, this.antCircle2, this.rope, this.hook, this.previewRope, ...this.fruits, this.hedgehog)
+        this.addChild(this.field, this.antCircle, this.antCircle2, this.polyWalls, ...this.holes, ...this.bumpers, this.rope, this.hook, this.previewRope, ...this.fruits, this.hedgehog)
         this.blockPolygons.forEach(poly => this.drawPolygonWall(poly))
         this.polyWalls.cacheAsBitmap = true
 
-        this.uiOverlay = new GameFieldUI()
+        this.uiOverlay = new GameFieldUI(1, [200, 300, 400], 0)
         this.addChild(this.uiOverlay)
     }
 
     addPoints(value: number) {
         this.points += value
-        this.uiOverlay.pointBar.pointTextObject.text = `${this.points}`
+        this.uiOverlay.stars.forEach(star => {
+            if (star.points <= this.points) {
+                star.fillStar()
+            }
+        })
+        this.uiOverlay.pointsNumberText.text = `${this.points}`
     }
 
     update() {
@@ -147,7 +158,7 @@ export class GameField extends Container {
     }
 
     updatePreviewRope(mousePosition: Vector2D) {
-        this.linePath = this.reflectLine([this.hedgehog.getGlobalPosition()], this.hedgehog.getGlobalPosition(), mousePosition)
+        this.linePath = this.reflector.reflectLine([this.hedgehog.getGlobalPosition()], this.hedgehog.getGlobalPosition(), mousePosition)
 
         // Check if Path hits fruit and highligh those
         for (let fruit of this.fruits) {
@@ -300,65 +311,6 @@ export class GameField extends Container {
             .promise()
     }
 
-    private reflectLine(startPath: Vector2D[], rayStart: Vector2D, rayEnd: Vector2D, maxReflections: number = 100): Vector2D[] {
-        if (maxReflections === 0) {
-            return [...startPath, rayEnd]
-        }
-
-        let result: Vector2D[] = [...startPath]
-        let rayDirection = vectorSub(rayStart, rayEnd)
-        let rayLength = vectorDistance(rayStart, rayEnd)
-
-        let intersectionPoints: { point: Vector2D, lineDirection: Vector2D, cutAngle: number }[] = []
-
-        for (let poly of this.blockPolygons) {
-            poly.forEachSideDo((polySideStart, polySideEnd) => {
-                // Die rechnung von unten lässt sich hier noch nicht machen. Also ruhig weit gehen
-                let polySideDirection = vectorSub(polySideEnd, polySideStart)
-                let cutAngle = Math.acos(Math.abs(vectorDot(rayDirection, polySideDirection)) / (rayLength * vectorLength(polySideDirection)))
-                let distanceSmallerNeeded = 25 / Math.sin(cutAngle)
-                let advancedEnd = vectorLerp(rayStart, rayEnd, (rayLength + distanceSmallerNeeded) / rayLength)
-
-                let intersection = findLineIntersection(rayStart, advancedEnd, polySideStart, polySideEnd)
-                if (intersection) {
-                    let polyLineDirection = vectorSub(polySideEnd, polySideStart)
-                    intersectionPoints.push({
-                        point: intersection,
-                        lineDirection: polyLineDirection,
-                        cutAngle: cutAngle
-                    })
-                }
-            })
-        }
-
-        intersectionPoints = intersectionPoints
-            // Avoid reflection on same line
-            .filter(point => vectorDistance(point.point, rayStart) > 1)
-            .sort((a, b) => vectorDistance(a.point, rayStart) - vectorDistance(b.point, rayStart))
-
-        if (intersectionPoints.length !== 0) {
-            let finalIntersection = intersectionPoints[0].point
-            let lastPoint = startPath[startPath.length - 1]
-            let length = vectorDistance(lastPoint, finalIntersection)
-
-            // Den Teil hier besser aufschreiben:
-            // Idee: Gehe vom eigentlichen Schnittpunkt wieder ein Stück zurück,
-            // in Normalenrichtung von der Schnittlinie soll dabei der Abstand konstant sein.
-            let distanceSmallerNeeded = 25 / Math.sin(intersectionPoints[0].cutAngle)
-            let preIntersectionPoint = vectorLerp(lastPoint, finalIntersection, (length - distanceSmallerNeeded) / length)
-            result.push(preIntersectionPoint)
-
-            // Search for further reflections
-            let remainingRay = vectorSub(rayEnd, preIntersectionPoint)
-            let mirroredRay = mirror(remainingRay, intersectionPoints[0].lineDirection)
-            result = this.reflectLine(result, preIntersectionPoint, vectorAdd(preIntersectionPoint, mirroredRay), maxReflections - 1)
-        } else {
-            result.push(rayEnd)
-        }
-
-        return result
-    }
-
     private initRandomField(): Container {
         // Start with basic background
         let container = new Container()
@@ -368,6 +320,29 @@ export class GameField extends Container {
         background.height = GAME_HEIGHT
         background.tint = 0x235552
         container.addChild(background)
+
+        let scheme: number[][] = []
+        for (let i = 0; i < GAME_HEIGHT / 128; i++) {
+            scheme[i] = []
+            for (let j = 0; j < GAME_WIDTH / 128; j++) {
+                scheme[i][j] = Math.floor(Math.random() * 5)
+
+            }
+        }
+
+
+        // Flatten scheme
+        for (let i = 0; i < GAME_HEIGHT / 128; i++) {
+            for (let j = 0; j < GAME_WIDTH / 128; j++) {
+                let neighbors = [[i - 1, j], [i + 1, j], [i, j - 1], [i, j + 1]]
+                    .filter(val => val[0] >= 0 && val[0] < GAME_HEIGHT / 128)
+                    .filter(val => val[1] >= 0 && val[1] < GAME_WIDTH / 128)
+                let flattened = Math.round(neighbors.map(n => scheme[n[0]][n[1]]).add() / neighbors.length)
+                let sprite = new Sprite(ASSET_MANAGER.getTextureAsset(("filler_" + flattened) as TextureAssetID))
+                sprite.position.set(j * 128, i * 128)
+                container.addChild(sprite)
+            }
+        }
 
         // Make the background easy to save and return
         container.cacheAsBitmap = true

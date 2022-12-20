@@ -17,6 +17,7 @@ import {StartScene} from "./Scenes/StartScene";
 import "./General/TypeChanges/Array"
 import "./General/TypeChanges/Graphics"
 import {Level1} from "./Scenes/Level1";
+import {LoadingScene} from "./Scenes/LoadingScene";
 
 export const GAME_WIDTH: number = 1920;
 export const GAME_HEIGHT: number = 1080;
@@ -40,60 +41,25 @@ export var MUSIC_BUTTON: MusicButton
 export const TWEEN = require('@tweenjs/tween.js')
 
 export type CustomApp = {
-    stage: Container, ticker: Ticker, renderer: AbstractRenderer, registerChange(): void
+    stage: Container, ticker: Ticker, renderer: AbstractRenderer
 }
 
 const main = async () => {
-    let renderer = Renderer.create({
-        width: GAME_WIDTH,
-        height: GAME_HEIGHT,
-        resolution: window.devicePixelRatio || 1,
-        antialias: false,
-    })
-
-    // Display application properly
-    document.body.appendChild(renderer.view);
-    document.body.style.margin = '0';
-    renderer.view.style!.width = GAME_WIDTH / 2 + "px"
-    renderer.view.style!.height = GAME_HEIGHT / 2 + "px"
-
-    let stage = new Container()
-    stage.sortableChildren = false
-    // Init Main App
-
-    let dirty: boolean = true
-    var ticker = new Ticker();
-    ticker.maxFPS = 30
-    ticker.add(() => {
-        Tweener.update()
-        renderer.render(stage);
-    });
-
-    App = {stage: stage, ticker: ticker, renderer: renderer, registerChange: () => dirty = true}
-
-    // Add all loading bundles
-    // Synchronize tickers by using the gsap one
-    Ticker.system.stop()
-    Ticker.shared.stop()
-    ticker.start()
+    App = initApp();
 
     ASSET_MANAGER = new AssetManager()
     SCENE_MANAGER = new SceneManager(App);
     LANGUAGE_MANAGER = new LanguageManager()
-    App.stage.addChild(SCENE_MANAGER)
 
     // Load assets
-    await ASSET_MANAGER.startLoadingScreen()
+    const loadingScene = new LoadingScene(App)
+    SCENE_MANAGER.add("loadingScene", loadingScene)
     await SCENE_MANAGER.startWithTransition("loadingScene")
-    await ASSET_MANAGER.startLoadingOtherAssets()
+    await loadingScene.loadAssets()
 
     SOUND_MANAGER = new SoundManager()
     GAME_DATA = new GameData()
     EVENT_EMITTER = new EventEmitter()
-
-    // DIALOG_MANAGER = new DialogManager()
-    // DIALOG_MANAGER.zIndex = 110
-    // App.stage.addChild(DIALOG_MANAGER)
 
     // MUSIC_BUTTON = new MusicButton()
     // MUSIC_BUTTON.position.set(170, 125)
@@ -109,10 +75,40 @@ const main = async () => {
     SCENE_MANAGER.add("startScene", new StartScene(App))
     LEVEL_SCREEN = new LevelChooserScene(App)
     SCENE_MANAGER.add("levelChooserScene", LEVEL_SCREEN)
-
     SCENE_MANAGER.add("level_1", new Level1())
-
-    SCENE_MANAGER.startWithTransition("startScene")
 };
+
+function initApp() {
+    const renderer = Renderer.create({
+        width: GAME_WIDTH,
+        height: GAME_HEIGHT,
+        resolution: window.devicePixelRatio || 1,
+        antialias: false,
+    })
+
+    // Display application properly
+    document.body.appendChild(renderer.view);
+    document.body.style.margin = '0';
+    renderer.view.style!.width = GAME_WIDTH / 2 + "px"
+    renderer.view.style!.height = GAME_HEIGHT / 2 + "px"
+
+    const stage = new Container()
+    stage.sortableChildren = true
+
+    // Init Ticker
+    const ticker = new Ticker();
+    ticker.maxFPS = 30
+    ticker.add(() => {
+        Tweener.update()
+        renderer.render(stage);
+    });
+
+    // Limit all tickers to a single one
+    Ticker.system.stop()
+    Ticker.shared.stop()
+    ticker.start()
+
+    return {stage: stage, ticker: ticker, renderer: renderer}
+}
 
 main();

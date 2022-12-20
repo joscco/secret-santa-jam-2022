@@ -27,7 +27,7 @@ export class LevelChooserScene extends Scene {
     }
 
     private setUpTitle(): Text {
-        let title = new Text("Choose a level", {fontFamily: "Futurahandwritten", fontWeight: "bold", fontSize: 75, fill: 0x000000})
+        let title = new Text("Choose a level", {fontFamily: "Futurahandwritten", fontWeight: "bold", fontSize: 75, fill: 0xffffff})
         title.anchor.set(0.5)
         title.position.set(GAME_WIDTH / 2, 125)
         this.addChild(title)

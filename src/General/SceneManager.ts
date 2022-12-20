@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
+import {Container, Graphics} from 'pixi.js';
 import IScene from "../Scenes/Basics/IScene";
-import {Container, Graphics} from "pixi.js";
-import {App, CustomApp, GAME_HEIGHT, GAME_WIDTH} from "../index";
+import {CustomApp, GAME_HEIGHT, GAME_WIDTH} from "../index";
 import Tweener from "./Tweener";
 import {Easing} from "@tweenjs/tween.js";
 
@@ -19,10 +19,13 @@ export default class SceneManager extends Container{
     constructor(app: CustomApp) {
         super()
         this.app = app;
+
         this.scenes = {};
         this.current = null;
         app.ticker.add(this.update.bind(this));
         this.overlay = this.initOverlay();
+
+        this.app.stage.addChild(this)
     }
 
     private initOverlay(): Graphics {
@@ -30,7 +33,7 @@ export default class SceneManager extends Container{
         this.alpha = 0
 
         let overlay = new Graphics()
-        overlay.beginFill(0x381A1C)
+        overlay.beginFill(0x000000)
         overlay.drawRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
         overlay.endFill()
 
@@ -124,10 +127,11 @@ export default class SceneManager extends Container{
         }
 
         await this.beforeFadeOut()
-        Tweener.of(this)
+        await Tweener.of(this)
             .to({alpha: 1}, 800)
             .easing(Easing.Quadratic.InOut)
             .start()
+            .promise()
         this.stop();
 
         // Start new
@@ -145,9 +149,9 @@ export default class SceneManager extends Container{
         await this.beforeFadeIn()
         await Tweener.of(this)
             .to({alpha: 0}, 800)
-            .onUpdate(() => App.registerChange())
             .easing(Easing.Quadratic.InOut)
             .start()
+            .promise()
         await this.afterFadeIn()
     }
 

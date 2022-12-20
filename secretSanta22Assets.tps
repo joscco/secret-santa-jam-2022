@@ -267,6 +267,7 @@
             <key type="filename">assets/gameScreen/fillers/filler_1.png</key>
             <key type="filename">assets/gameScreen/fillers/filler_2.png</key>
             <key type="filename">assets/gameScreen/fillers/filler_3.png</key>
+            <key type="filename">assets/gameScreen/fillers/filler_4.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0,0</point_f>
