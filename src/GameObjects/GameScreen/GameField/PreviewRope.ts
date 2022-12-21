@@ -2,7 +2,7 @@ import {Graphics, LINE_CAP} from "pixi.js";
 import {Vector2D, vectorDistance} from "../../../General/Helpers";
 
 export class PreviewRope extends Graphics {
-    readonly NUMBER_DASHES = 30
+    readonly NUMBER_DASHES = 50
     update(path: Vector2D[]) {
         this.clear()
         this.lineStyle({

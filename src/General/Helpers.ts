@@ -170,8 +170,8 @@ export function findLineIntersection(start1: Vector2D, end1: Vector2D, start2: V
     if (t_down !== 0 && u_down !== 0
         && Math.sign(t_up) == Math.sign(t_down)
         && Math.sign(u_down) == Math.sign(u_up)
-        && Math.abs(t_up) <= Math.abs(t_down)
-        && Math.abs(u_up) <= Math.abs(u_down)
+        && Math.abs(t_up) < Math.abs(t_down)
+        && Math.abs(u_up) < Math.abs(u_down)
     ) {
         let t = t_up / t_down
         return vectorLerp(start1, end1, t)

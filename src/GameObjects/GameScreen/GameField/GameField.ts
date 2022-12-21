@@ -111,6 +111,10 @@ export class GameField extends Container {
         bumper.position.set(1100, 800)
         this.bumpers.push(bumper)
 
+        let bumper2 = new Bumper()
+        bumper2.position.set(800, 800)
+        this.bumpers.push(bumper2)
+
         this.reflector = new LineReflector(this.blockPolygons, this.bumpers)
 
         // Set fruits

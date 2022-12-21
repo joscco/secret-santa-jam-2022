@@ -14,16 +14,16 @@ export class LineReflector {
 
     polygons: Polygon2D[]
     bumpers: Bumper[]
-    LINE_HIT_DISTANCE = 0
+    MAX_REFLECTIONS: number = 5
 
     constructor(polygons: Polygon2D[], bumpers: Bumper[]) {
         this.polygons = polygons
         this.bumpers = bumpers
     }
 
-    reflectLine(startPath: Vector2D[], rayStart: Vector2D, rayEnd: Vector2D, maxReflections: number = 100): Vector2D[] {
+    reflectLine(startPath: Vector2D[], rayStart: Vector2D, rayEnd: Vector2D, maxReflections: number = this.MAX_REFLECTIONS): Vector2D[] {
         if (maxReflections === 0) {
-            return [...startPath, rayEnd]
+            return [...startPath]
         }
 
         let result: Vector2D[] = [...startPath]
@@ -41,21 +41,13 @@ export class LineReflector {
 
         if (intersectionPoints.length !== 0) {
             let finalIntersection = intersectionPoints[0].point
-            let lastPoint = startPath[startPath.length - 1]
-            let length = vectorDistance(lastPoint, finalIntersection)
-
-            // Den Teil hier besser aufschreiben:
-            // Idee: Gehe vom eigentlichen Schnittpunkt wieder ein Stück zurück,
-            // in Normalenrichtung von der Schnittlinie soll dabei der Abstand konstant sein.
-            let distanceSmallerNeeded = this.LINE_HIT_DISTANCE / Math.sin(intersectionPoints[0].cutAngle)
-            let preIntersectionPoint = vectorLerp(lastPoint, finalIntersection, (length - distanceSmallerNeeded) / length)
-            result.push(preIntersectionPoint)
+            result.push(finalIntersection)
 
             // Search for further reflections
-            let remainingRayEnd = intersectionPoints[0].isBumper ? vectorLerp(preIntersectionPoint, rayEnd, 2) : rayEnd
-            let remainingRay = vectorSub(remainingRayEnd, preIntersectionPoint)
+            let remainingRayEnd = intersectionPoints[0].isBumper ? vectorLerp(finalIntersection, rayEnd, 2) : rayEnd
+            let remainingRay = vectorSub(remainingRayEnd, finalIntersection)
             let mirroredRay = mirror(remainingRay, intersectionPoints[0].lineDirection)
-            result = this.reflectLine(result, preIntersectionPoint, vectorAdd(preIntersectionPoint, mirroredRay), maxReflections - 1)
+            result = this.reflectLine(result, finalIntersection, vectorAdd(finalIntersection, mirroredRay), maxReflections - 1)
         } else {
             result.push(rayEnd)
         }
@@ -69,17 +61,19 @@ export class LineReflector {
                 let polySideDirection = vectorSub(polySideEnd, polySideStart)
                 let polySideLength = vectorLength(polySideDirection)
                 let cutAngle = Math.acos(Math.abs(vectorDot(rayDirection, polySideDirection)) / (rayLength * polySideLength))
-                // Perpendicular distance from line to HitPoint should be 25 pixels
-                // Calculate the distance from rayEnd to this pre hitpoint
-                let distanceToPreHitpoint = this.LINE_HIT_DISTANCE / Math.sin(cutAngle)
-                let preHitPoint = vectorLerp(rayStart, rayEnd, (rayLength + distanceToPreHitpoint) / rayLength)
 
-                let intersection = findLineIntersection(rayStart, preHitPoint, polySideStart, polySideEnd)
+                let intersection = findLineIntersection(rayStart, rayEnd, polySideStart, polySideEnd)
                 if (intersection) {
-                    let polyLineDirection = vectorSub(polySideEnd, polySideStart)
+                    // If intersection is the edge of a polygon Side, put it a bit of to avoid "passing through corners"
+                    if (vectorDistance(intersection, polySideStart) < 5) {
+                        intersection = vectorLerp(intersection, polySideEnd, 0.01)
+                    } else if (vectorDistance(intersection, polySideEnd) < 5) {
+                        intersection = vectorLerp(polySideStart, intersection, 0.99)
+                    }
+
                     intersectionPoints.push({
                         point: intersection,
-                        lineDirection: polyLineDirection,
+                        lineDirection: polySideDirection,
                         cutAngle: cutAngle,
                         isBumper: false
                     })
