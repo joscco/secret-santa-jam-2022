@@ -91,6 +91,28 @@ const TEXTURE_MANIFEST = {
     rock11: "gameScreen/rocks/rock_11",
     rock12: "gameScreen/rocks/rock_12",
     rock13: "gameScreen/rocks/rock_13",
+    rock14: "gameScreen/rocks/rock_14",
+    rock15: "gameScreen/rocks/rock_15",
+    rock16: "gameScreen/rocks/rock_16",
+    rock17: "gameScreen/rocks/rock_17",
+    rock18: "gameScreen/rocks/rock_18",
+    rock19: "gameScreen/rocks/rock_19",
+    rock20: "gameScreen/rocks/rock_20",
+    rock21: "gameScreen/rocks/rock_21",
+    rock22: "gameScreen/rocks/rock_22",
+    rock23: "gameScreen/rocks/rock_23",
+    rock24: "gameScreen/rocks/rock_24",
+    rock25: "gameScreen/rocks/rock_25",
+    rock26: "gameScreen/rocks/rock_26",
+    rock27: "gameScreen/rocks/rock_27",
+    rock28: "gameScreen/rocks/rock_28",
+    rock29: "gameScreen/rocks/rock_29",
+    rock30: "gameScreen/rocks/rock_30",
+    rock31: "gameScreen/rocks/rock_31",
+    rock32: "gameScreen/rocks/rock_32",
+    rock33: "gameScreen/rocks/rock_33",
+    rock34: "gameScreen/rocks/rock_34",
+    rock35: "gameScreen/rocks/rock_35",
 
     // misc
     antMountain: "gameScreen/antMountain",
@@ -111,7 +133,10 @@ const TEXTURE_MANIFEST = {
     titleLetter8: "startScreen/title_8",
 
     // Level Screen
-    level1Bug: "levelScreen/level1Bug"
+    level1Bug: "levelScreen/level1Bug",
+    level2Bug: "levelScreen/level2Bug",
+    level3Bug: "levelScreen/level3Bug",
+    level4Bug: "levelScreen/level4Bug"
 
 } as const
 

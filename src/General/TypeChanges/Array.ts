@@ -1,12 +1,19 @@
 declare global {
     interface Array<T> {
         add(): number,
-        multiply(scalar: number): number[],
-        floor(): number[],
-        ceil(): number[],
 
         contains(element: T): boolean;
+
+        ceil(): number[],
+
+        floor(): number[],
+
         max(sortFn: (a: T, b: T) => number): T,
+
+        multiply(scalar: number): number[],
+
+        remove(element: T): T[]
+
         slideWindow(width: number): T[][]
     }
 }
@@ -15,7 +22,7 @@ Array.prototype.add = function (): number {
     return this.reduce((a, b) => a + b, 0)
 }
 
-Array.prototype.multiply = function(scalar: number): number[] {
+Array.prototype.multiply = function (scalar: number): number[] {
     return this.map(val => scalar * val)
 }
 
@@ -39,6 +46,14 @@ Array.prototype.max = function <T>(sortFn: (a: T, b: T) => number): number {
         }
     }
     return currentMax
+}
+
+Array.prototype.remove = function <T>(element: T): T[] {
+    let index = this.indexOf(element)
+    if (index > -1) {
+        this.splice(index, 1)
+    }
+    return this
 }
 
 Array.prototype.slideWindow = function <T>(width: number): T[][] {

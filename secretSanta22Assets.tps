@@ -282,6 +282,37 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">assets/gameScreen/fillers/filler_5.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>32,32,64,65</rect>
+                <key>scale9Paddings</key>
+                <rect>32,32,64,65</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/fillers/hole.png</key>
+            <key type="filename">assets/gameScreen/hole.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>46,18,91,35</rect>
+                <key>scale9Paddings</key>
+                <rect>46,18,91,35</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">assets/gameScreen/fruits/apple.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -417,21 +448,6 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">assets/gameScreen/hole.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0,0</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>46,18,91,35</rect>
-                <key>scale9Paddings</key>
-                <rect>46,18,91,35</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
             <key type="filename">assets/gameScreen/rocks/rock_0.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -522,6 +538,102 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_14.png</key>
+            <key type="filename">assets/gameScreen/rocks/rock_25.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>10,8,19,15</rect>
+                <key>scale9Paddings</key>
+                <rect>10,8,19,15</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_15.png</key>
+            <key type="filename">assets/gameScreen/rocks/rock_26.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>12,10,24,19</rect>
+                <key>scale9Paddings</key>
+                <rect>12,10,24,19</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_16.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>15,13,30,25</rect>
+                <key>scale9Paddings</key>
+                <rect>15,13,30,25</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_17.png</key>
+            <key type="filename">assets/gameScreen/rocks/rock_3.png</key>
+            <key type="filename">assets/gameScreen/rocks/rock_32.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>17,14,33,29</rect>
+                <key>scale9Paddings</key>
+                <rect>17,14,33,29</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_18.png</key>
+            <key type="filename">assets/gameScreen/rocks/rock_33.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>16,11,31,21</rect>
+                <key>scale9Paddings</key>
+                <rect>16,11,31,21</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_19.png</key>
+            <key type="filename">assets/gameScreen/rocks/rock_34.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>16,13,32,26</rect>
+                <key>scale9Paddings</key>
+                <rect>16,13,32,26</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">assets/gameScreen/rocks/rock_2.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -537,7 +649,8 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">assets/gameScreen/rocks/rock_3.png</key>
+            <key type="filename">assets/gameScreen/rocks/rock_20.png</key>
+            <key type="filename">assets/gameScreen/rocks/rock_35.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0,0</point_f>
@@ -546,9 +659,102 @@
                 <key>scale9Enabled</key>
                 <false/>
                 <key>scale9Borders</key>
-                <rect>17,14,33,29</rect>
+                <rect>17,10,35,20</rect>
                 <key>scale9Paddings</key>
-                <rect>17,14,33,29</rect>
+                <rect>17,10,35,20</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_21.png</key>
+            <key type="filename">assets/gameScreen/rocks/rock_30.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>15,18,29,37</rect>
+                <key>scale9Paddings</key>
+                <rect>15,18,29,37</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_22.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>14,11,29,21</rect>
+                <key>scale9Paddings</key>
+                <rect>14,11,29,21</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_23.png</key>
+            <key type="filename">assets/gameScreen/rocks/rock_28.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>13,11,25,21</rect>
+                <key>scale9Paddings</key>
+                <rect>13,11,25,21</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_24.png</key>
+            <key type="filename">assets/gameScreen/rocks/rock_27.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>8,6,17,12</rect>
+                <key>scale9Paddings</key>
+                <rect>8,6,17,12</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_29.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>14,11,28,21</rect>
+                <key>scale9Paddings</key>
+                <rect>14,11,28,21</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/rocks/rock_31.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>15,13,31,25</rect>
+                <key>scale9Paddings</key>
+                <rect>15,13,31,25</rect>
                 <key>scale9FromFile</key>
                 <false/>
             </struct>

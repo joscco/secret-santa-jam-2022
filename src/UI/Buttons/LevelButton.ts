@@ -33,6 +33,7 @@ export class LevelButton extends ScalingButton {
             lineJoin: "round"
         })
         this.text.anchor.set(0.5)
+        this.text.position.set(-10, 0)
         this.addChild(this.text)
         this.updateTexture()
 

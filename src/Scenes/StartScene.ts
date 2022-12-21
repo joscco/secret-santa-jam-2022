@@ -95,8 +95,8 @@ export class StartScene extends Scene {
 
         await Tweener.of(this.startButton)
             .to({y: GAME_HEIGHT / 2 + 300})
-            .duration(300)
-            .easing(Easing.Sinusoidal.Out)
+            .duration(500)
+            .easing(Easing.Back.InOut)
             .start()
             .promise()
     }

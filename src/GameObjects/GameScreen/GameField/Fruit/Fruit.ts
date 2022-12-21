@@ -9,17 +9,26 @@ import {Easing} from "@tweenjs/tween.js";
 
 export type FruitType = "pear" | "apple" | "ruebe" | "banana"
 
+const POINTMAP = {
+    "pear": 50,
+    "apple": 100,
+    "ruebe": 200,
+    "banana": 500
+}
+
 export class Fruit extends Container {
     type: FruitType
     sprite: Sprite
     liveBar: FruitLiveBar
     hitRadius = 40
+    points: number
 
     constructor(type: FruitType) {
         super();
 
         this.type = type
-        this.sprite = new Sprite(ASSET_MANAGER.getTextureAsset(this.type as TextureAssetID))
+        this.points = POINTMAP[type]
+            this.sprite = new Sprite(ASSET_MANAGER.getTextureAsset(this.type as TextureAssetID))
         this.sprite.anchor.set(0.5)
 
         this.liveBar = new FruitLiveBar()
@@ -46,15 +55,19 @@ export class Fruit extends Container {
         return distance <= this.hitRadius
     }
 
-    async drop() {
-        await Tweener.of(this.liveBar.scale)
+    async moveToAndBlendOut(position: Vector2D) {
+        Tweener.of(this)
+            .to({x: position.x, y: position.y})
+            .duration(200)
+            .easing(Easing.Back.Out)
+            .start()
+        Tweener.of(this.liveBar.scale)
             .to({y: 0})
             .duration(300)
             .easing(Easing.Quadratic.InOut)
             .start()
-            .promise()
-        await Tweener.of(this.scale)
-            .to({x: 0, y: 0})
+        await Tweener.of(this)
+            .to({scale: {x: 0, y: 0}, alpha: 0})
             .duration(300)
             .easing(Easing.Back.In)
             .start()

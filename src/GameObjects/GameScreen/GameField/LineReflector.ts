@@ -14,7 +14,7 @@ export class LineReflector {
 
     polygons: Polygon2D[]
     bumpers: Bumper[]
-    MAX_REFLECTIONS: number = 5
+    MAX_REFLECTIONS: number = 25
 
     constructor(polygons: Polygon2D[], bumpers: Bumper[]) {
         this.polygons = polygons

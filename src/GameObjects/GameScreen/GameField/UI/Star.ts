@@ -13,7 +13,7 @@ export class Star extends Container {
 
         this.sprite = new Sprite(ASSET_MANAGER.getTextureAsset("emptyStar"))
         this.sprite.anchor.set(0.5)
-        this.pointsText = new Text(`${points}`, {fontFamily: "Futurahandwritten", fontSize: 30, fill: 0x000000})
+        this.pointsText = new Text(`${points}`, {fontFamily: "Futurahandwritten", fontSize: 30, fill: 0xffffff})
         this.pointsText.anchor.set(0.5)
         this.pointsText.position.set(0, 50)
         this.addChild(this.sprite, this.pointsText)

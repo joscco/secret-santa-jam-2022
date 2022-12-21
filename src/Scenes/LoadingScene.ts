@@ -31,7 +31,7 @@ export class LoadingScene extends Scene {
     }
 
     async setProgress(number: number) {
-        if(!this.loadingComplete) {
+        if (!this.loadingComplete) {
             this.loadingText!.text = `${number * 100}%`
             if (number >= 1) {
                 this.loadingComplete = true
@@ -65,18 +65,18 @@ export class LoadingScene extends Scene {
 
     private async blendInLoadingText() {
         await Tweener.of(this.loadingText!)
-            .to({y: GAME_HEIGHT/2, alpha: 1})
-            .duration(500)
-            .easing(Easing.Quadratic.Out)
+            .to({alpha: 1})
+            .duration(300)
+            .easing(Easing.Quadratic.InOut)
             .start()
             .promise()
     }
 
     private async blendOutLoadingText() {
         await Tweener.of(this.loadingText!)
-            .to({y: GAME_HEIGHT/2 + 40, alpha: 0})
-            .duration(500)
-            .easing(Easing.Quadratic.In)
+            .to({alpha: 0})
+            .duration(300)
+            .easing(Easing.Quadratic.InOut)
             .start()
             .promise()
     }

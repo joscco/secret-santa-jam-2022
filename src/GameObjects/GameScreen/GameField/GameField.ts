@@ -26,6 +26,7 @@ import {Fruit} from "./Fruit/Fruit";
 import {Hole} from "./Hole";
 import {LineReflector} from "./LineReflector";
 import {Bumper} from "./Bumper";
+import {WinScreen} from "./WinScreen/WinScreen";
 
 const PLAYER_HOOK_SPEED = 1 / 30
 const HOOK_HOOK_DURATION = 100
@@ -47,6 +48,8 @@ export class GameField extends Container {
     fruits: Fruit[] = []
     holes: Hole[] = []
     bumpers: Bumper[] = []
+
+    winScreen: WinScreen
 
     hedgehog: Hedgehog
     rope: Rope
@@ -122,12 +125,19 @@ export class GameField extends Container {
         apple.position.set(900, 600)
         this.fruits.push(apple)
 
-        this.addChild(this.field, this.antCircle, this.antCircle2, this.polyWalls, ...this.holes, ...this.bumpers, this.rope, this.hook, this.previewRope, ...this.fruits, this.hedgehog)
+        let pear = new Fruit("pear")
+        pear.position.set(1700, 600)
+        this.fruits.push(pear)
+
+        this.addChild(this.field, ...this.holes, this.antCircle, this.antCircle2, this.polyWalls, ...this.bumpers, this.rope, this.hook, this.previewRope, ...this.fruits, this.hedgehog)
         this.blockPolygons.forEach(poly => this.drawPolygonWall(poly))
         this.polyWalls.cacheAsBitmap = true
 
         this.uiOverlay = new GameFieldUI(1, [200, 300, 400], 0)
         this.addChild(this.uiOverlay)
+
+        this.winScreen = new WinScreen([200, 300, 400])
+        this.addChild(this.winScreen)
     }
 
     addPoints(value: number) {
@@ -148,7 +158,7 @@ export class GameField extends Container {
         this.antCircle2.update(this.time * 1.1 + 0.8)
 
         if (!this.inHookShooting) {
-            if (this.inputManager.isMouseDown()) {
+            if (this.inputManager.isMouseDown() && this.inputManager.isEnabled()) {
                 this.previewRope.alpha = lerp(this.previewRope.alpha, 1, 0.05)
                 this.updatePreviewRope(mousePosition)
             }
@@ -289,9 +299,11 @@ export class GameField extends Container {
                     }
 
                     if (movingObject instanceof Fruit) {
+                        let fruit = (movingObject as Fruit)
                         for (let hole of this.holes) {
                             if (hole.isAffectedByPosition(movingObject.position)) {
-                                (movingObject as Fruit).drop()
+                                this.removeFruit(fruit)
+                                fruit.moveToAndBlendOut(hole.position)
                                 movingObject = undefined
                                 break
                             }
@@ -355,31 +367,25 @@ export class GameField extends Container {
 
     private drawPolygonWall(poly: Polygon2D) {
         poly.forEachSideDo((start, end) => {
+            let signX = Math.sign(end.x - start.x)
+            let signY = Math.sign(end.y - start.y)
             let distanceX = Math.abs(end.x - start.x)
             let distanceY = Math.abs(end.y - start.y)
-            let numberOfRocks = Math.sqrt(distanceX * distanceX * 0.8 + distanceY * distanceY) / 30
+            let x = 0
+            let y = 0
 
-            for (let polIndex = 0; polIndex < numberOfRocks; polIndex++) {
-                let randomIndex = Math.floor(Math.random() * 100)
-                if (randomIndex < 20) {
-                    randomIndex = 2
-                } else if (randomIndex < 40) {
-                    randomIndex = 3
-                } else if (randomIndex < 55) {
-                    randomIndex = 7
-                } else if (randomIndex < 65) {
-                    randomIndex = 12
-                } else {
-                    randomIndex %= 14
-                }
+            while (x < distanceX || y < distanceY) {
+                let randomIndex = Math.floor(Math.random() * 35)
 
                 let sprite = new Sprite(ASSET_MANAGER.getTextureAsset(`rock${randomIndex}` as TextureAssetID))
-                sprite.position = vectorAdd(vectorLerp(start, end, polIndex / numberOfRocks), {
-                    x: -15 + Math.random() * 30,
-                    y: Math.random() * 30
+                sprite.position = vectorAdd(start, {
+                    x: signX * x - 15 + Math.random() * 30,
+                    y: signY * y + Math.random() * 30
                 })
-                sprite.anchor.set(0.5, 0.95)
-                sprite.zIndex = sprite.position.y
+                x += sprite.width / 2
+                y += sprite.height / 2
+                sprite.anchor.set(0.5, 1)
+                sprite.zIndex = sprite.position.y - 15
                 sprite.scale.x = Math.random() > 0.5 ? 1 : -1
                 this.polyWalls.addChild(sprite)
             }
@@ -388,5 +394,19 @@ export class GameField extends Container {
 
     private updateTime() {
         this.time += this.slowTime ? 0.3 : 1
+    }
+
+    private removeFruit(fruit: Fruit) {
+        this.fruits.remove(fruit)
+        this.addPoints(fruit.points)
+        if (this.fruits.length === 0) {
+            this.disableInput()
+            this.winScreen.setPointsAndStars(this.points)
+            this.winScreen.blendIn()
+        }
+    }
+
+    private disableInput() {
+        this.inputManager.setEnabled(false)
     }
 }
