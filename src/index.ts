@@ -16,7 +16,7 @@ import {StartScene} from "./Scenes/StartScene";
 // Type Change Imports
 import "./General/TypeChanges/Array"
 import "./General/TypeChanges/Graphics"
-import {Level1} from "./Scenes/Level1";
+import {Level} from "./Scenes/Level";
 import {LoadingScene} from "./Scenes/LoadingScene";
 
 export const GAME_WIDTH: number = 1920;
@@ -61,21 +61,21 @@ const main = async () => {
     GAME_DATA = new GameData()
     EVENT_EMITTER = new EventEmitter()
 
-    // MUSIC_BUTTON = new MusicButton()
-    // MUSIC_BUTTON.position.set(170, 125)
-    // MUSIC_BUTTON.zIndex = 110
-    // App.stage.addChild(MUSIC_BUTTON);
-    //
-    // SOUND_BUTTON = new SoundButton()
-    // SOUND_BUTTON.position.set(310, 125)
-    // SOUND_BUTTON.zIndex = 110
-    // App.stage.addChild(SOUND_BUTTON);
+    MUSIC_BUTTON = new MusicButton()
+    MUSIC_BUTTON.position.set(GAME_WIDTH - 170, 80)
+    MUSIC_BUTTON.zIndex = 110
+    App.stage.addChild(MUSIC_BUTTON);
+
+    SOUND_BUTTON = new SoundButton()
+    SOUND_BUTTON.position.set(GAME_WIDTH - 310, 80)
+    SOUND_BUTTON.zIndex = 110
+    App.stage.addChild(SOUND_BUTTON);
 
     // Finally adding Scenes:
     SCENE_MANAGER.add("startScene", new StartScene(App))
     LEVEL_SCREEN = new LevelChooserScene(App)
     SCENE_MANAGER.add("levelChooserScene", LEVEL_SCREEN)
-    SCENE_MANAGER.add("level_1", new Level1())
+    SCENE_MANAGER.add("level_1", new Level(1))
 };
 
 function initApp() {

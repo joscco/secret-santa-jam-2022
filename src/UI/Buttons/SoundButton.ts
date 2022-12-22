@@ -1,39 +1,38 @@
-import {Container, Texture} from "pixi.js";
-import {SOUND_MANAGER} from "../../index";
+import {Container, Sprite, Texture} from "pixi.js";
+import {ASSET_MANAGER, SOUND_MANAGER} from "../../index";
 import {OutlineFilter} from "@pixi/filter-outline";
+import {VerticalSlider} from "../../GameObjects/GameScreen/IngredientBook/VerticalSlider";
+import {CenteredSprite} from "../../General/CenteredSprite";
 
 export class SoundButton extends Container {
 
     enabled: boolean = true
-    // sprite: Sprite
-    // slider: VerticalSlider
+    sprite: Sprite
+    slider: VerticalSlider
 
     constructor() {
         super();
-        // this.sprite = new CenteredSprite(ASSET_MANAGER.getTextureAsset("soundButton"))
-        //
-        // this.slider = new VerticalSlider({
-        //     increaseToBottom: false,
-        //     innerTexture: ASSET_MANAGER.getTextureAsset("sliderInner"),
-        //     outerTexture: ASSET_MANAGER.getTextureAsset("sliderOuter"),
-        //     knobTexture: ASSET_MANAGER.getTextureAsset("sliderKnob"),
-        //     anchorKnob: {x: 0.5, y: 0.5},
-        //     startValue: 1,
-        //     marginTop: 12,
-        //     marginBottom: 15
-        // })
+        this.sprite = new CenteredSprite(ASSET_MANAGER.getTextureAsset("soundSymbol"))
 
-        // this.slider.setValueHandler(val => this.onValueChange(val))
-        // this.slider.position.set(70, 47)
-        //
-        // this.addChild(this.sprite, this.slider)
+        this.slider = new VerticalSlider({
+            increaseToBottom: false,
+            innerTexture: ASSET_MANAGER.getTextureAsset("sliderInner"),
+            outerTexture: ASSET_MANAGER.getTextureAsset("sliderOuter"),
+            knobTexture: ASSET_MANAGER.getTextureAsset("sliderKnob"),
+            anchorKnob: {x: 0.5, y: 0.5},
+            startValue: 1,
+            marginTop: 15,
+            marginBottom: 15
+        })
+
+        this.slider.setValueHandler(val => this.onValueChange(val))
+        this.slider.position.set(70, 47)
+
+        this.addChild(this.sprite, this.slider)
     }
 
     getTexture(): Texture {
-        // return this.enabled
-        //     ? ASSET_MANAGER.getTextureAsset("soundButton")
-        //     : ASSET_MANAGER.getTextureAsset("noSoundButton");
-        return Texture.EMPTY
+        return ASSET_MANAGER.getTextureAsset("soundSymbol")
     }
 
     onValueChange(newValue: number) {
@@ -51,6 +50,6 @@ export class SoundButton extends Container {
     }
 
     private updateTexture() {
-        // this.sprite.texture = this.getTexture()
+        this.sprite.texture = this.getTexture()
     }
 }

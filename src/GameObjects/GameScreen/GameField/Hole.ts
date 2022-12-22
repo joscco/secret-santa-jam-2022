@@ -6,7 +6,7 @@ import {OutlineFilter} from "@pixi/filter-outline";
 export class Hole extends Container {
 
     sprite: Sprite
-    private readonly hitRadius: number = 40
+    private readonly hitRadius: number = 55
 
     constructor() {
         super();

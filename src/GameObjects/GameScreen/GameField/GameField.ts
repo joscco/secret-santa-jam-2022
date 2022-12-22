@@ -1,7 +1,7 @@
 import {Container, Sprite} from "pixi.js";
 import {Hedgehog} from "./Hedgehog";
 import {Hook} from "./Hook";
-import {ASSET_MANAGER, GAME_HEIGHT, GAME_WIDTH} from "../../../index";
+import {ASSET_MANAGER, GAME_HEIGHT, GAME_WIDTH, SOUND_MANAGER} from "../../../index";
 import {InputManager} from "../../../General/InputManager";
 import {
     harmonizeAngle,
@@ -20,36 +20,30 @@ import {TextureAssetID} from "../../../General/AssetManager";
 import {Polygon2D} from "../../../General/Polygon2D";
 import {Easing} from "@tweenjs/tween.js";
 import {Enemy} from "./Enemies/Enemy";
-import {AntCircle} from "./Enemies/AntCircle";
-import {GameFieldUI} from "./UI/GameFieldUI";
 import {Fruit} from "./Fruit/Fruit";
-import {Hole} from "./Hole";
 import {LineReflector} from "./LineReflector";
+import {EnemyGroup} from "./Enemies/EnemyGroup";
 import {Bumper} from "./Bumper";
-import {WinScreen} from "./WinScreen/WinScreen";
+import {Hole} from "./Hole";
 
 const PLAYER_HOOK_SPEED = 1 / 30
 const HOOK_HOOK_DURATION = 100
 
 export class GameField extends Container {
+    addPoints: (amount: number) => void
+    removeFruit: (fruit: Fruit) => void
     time: number = 0
     slowTime: boolean = false
     field: Container
 
-    blockPolygons: Polygon2D[]
+    fruits: Fruit[]
+    holes: Hole[]
     linePath: Vector2D[] = []
     polyWalls: Container
 
-    aliveEnemies: Enemy[] = []
-    deadEnemies: Enemy[] = []
-    antCircle: AntCircle
-    antCircle2: AntCircle
-
-    fruits: Fruit[] = []
-    holes: Hole[] = []
-    bumpers: Bumper[] = []
-
-    winScreen: WinScreen
+    enemyGroups: EnemyGroup[]
+    aliveEnemies: Enemy[]
+    deadEnemies: Enemy[]
 
     hedgehog: Hedgehog
     rope: Rope
@@ -61,13 +55,19 @@ export class GameField extends Container {
     drawingToHook: boolean = false
     inHookShooting: boolean = false
 
-    points: number = 0
-    uiOverlay: GameFieldUI
-
     reflector: LineReflector
 
-    constructor() {
+    constructor(
+        blockPolygons: Polygon2D[], bumpers: Bumper[], holes: Hole[], enemyGroups: EnemyGroup[], fruits: Fruit[],
+        removeFruit: (fruit: Fruit) => void, addPoints: (amount: number) => void)
+    {
         super()
+
+        this.removeFruit = removeFruit
+        this.addPoints = addPoints
+
+        this.fruits = fruits
+        this.holes = holes
         this.field = this.initRandomField()
 
         this.hedgehog = new Hedgehog()
@@ -79,83 +79,28 @@ export class GameField extends Container {
         this.hook = new Hook()
         this.hook.position = this.hedgehog.getGlobalPosition()
 
-        this.blockPolygons = [
-            new Polygon2D([
-                {x: 100, y: 400},
-                {x: 450, y: 400},
-                {x: 450, y: 100},
-                {x: GAME_WIDTH - 100, y: 100},
-                {x: GAME_WIDTH - 100, y: GAME_HEIGHT - 100},
-                {x: 100, y: GAME_HEIGHT - 100}
-            ]),
-            new Polygon2D([
-                {x: 1300, y: 300},
-                {x: 1300, y: 700},
-            ])]
-
         this.polyWalls = new Container()
         this.polyWalls.sortableChildren = true
 
         this.inputManager = new InputManager()
         this.inputManager.initMouseControls(this.field, () => this.onPointerDown(), () => this.onPointerUp())
 
-        this.aliveEnemies = Array(120).fill(0).map(() => new Enemy())
-        this.antCircle = new AntCircle(this.aliveEnemies.slice(0, 60))
-        this.antCircle.position.set(GAME_WIDTH / 2 + 150, GAME_HEIGHT / 2)
+        this.enemyGroups = enemyGroups
+        this.aliveEnemies = [...this.enemyGroups.map(group => group.enemies).flat()]
+        this.deadEnemies = []
 
-        this.antCircle2 = new AntCircle(this.aliveEnemies.slice(60, 120))
-        this.antCircle2.position.set(GAME_WIDTH / 2 - 150, GAME_HEIGHT / 2)
+        this.reflector = new LineReflector(blockPolygons, bumpers)
 
-        let hole = new Hole()
-        hole.position.set(1100, 500)
-        this.holes.push(hole)
-
-        let bumper = new Bumper()
-        bumper.position.set(1100, 800)
-        this.bumpers.push(bumper)
-
-        let bumper2 = new Bumper()
-        bumper2.position.set(800, 800)
-        this.bumpers.push(bumper2)
-
-        this.reflector = new LineReflector(this.blockPolygons, this.bumpers)
-
-        // Set fruits
-        let apple = new Fruit("apple")
-        apple.position.set(900, 600)
-        this.fruits.push(apple)
-
-        let pear = new Fruit("pear")
-        pear.position.set(1700, 600)
-        this.fruits.push(pear)
-
-        this.addChild(this.field, ...this.holes, this.antCircle, this.antCircle2, this.polyWalls, ...this.bumpers, this.rope, this.hook, this.previewRope, ...this.fruits, this.hedgehog)
-        this.blockPolygons.forEach(poly => this.drawPolygonWall(poly))
+        this.addChild(this.field, ...holes, ...enemyGroups, this.polyWalls, ...bumpers, this.rope, this.hook, this.previewRope, ...fruits, this.hedgehog)
+        blockPolygons.forEach(poly => this.drawPolygonWall(poly))
         this.polyWalls.cacheAsBitmap = true
-
-        this.uiOverlay = new GameFieldUI(1, [200, 300, 400], 0)
-        this.addChild(this.uiOverlay)
-
-        this.winScreen = new WinScreen([200, 300, 400])
-        this.addChild(this.winScreen)
-    }
-
-    addPoints(value: number) {
-        this.points += value
-        this.uiOverlay.stars.forEach(star => {
-            if (star.points <= this.points) {
-                star.fillStar()
-            }
-        })
-        this.uiOverlay.pointsNumberText.text = `${this.points}`
     }
 
     update() {
         this.updateTime()
         let mousePosition = this.inputManager.getMousePosition()
         this.hedgehog.update()
-        this.antCircle.update(this.time)
-        this.antCircle2.update(this.time * 1.1 + 0.8)
+        this.enemyGroups.map((enemy, index) => enemy.update(this.time + index * 0.6))
 
         if (!this.inHookShooting) {
             if (this.inputManager.isMouseDown() && this.inputManager.isEnabled()) {
@@ -255,11 +200,16 @@ export class GameField extends Container {
                 lastFullDistance += distances[currentIndex]
                 lastRelativeDistance = lastFullDistance / fullDistance
                 currentIndex++
+                SOUND_MANAGER.playBlub()
                 this.rope.dropFirstPoint()
             }
 
             let pathLerp = (val - lastRelativeDistance) / (relativeLengths[currentIndex])
-            return vectorLerp(linePath[currentIndex], linePath[currentIndex + 1], pathLerp)
+            if (currentIndex + 1 <= linePath.length) {
+                return vectorLerp(linePath[currentIndex], linePath[currentIndex + 1], pathLerp)
+            } else {
+                return linePath[currentIndex]
+            }
         }
 
         let movingObject: { position: Vector2D } | undefined = this.hedgehog
@@ -291,7 +241,8 @@ export class GameField extends Container {
 
                     // Change to fruit near enough
                     for (let fruit of this.fruits) {
-                        if (fruit.isAffectedByPosition(movingObject.position)) {
+                        if (!(movingObject instanceof Fruit) && fruit.isAffectedByPosition(movingObject.position)) {
+                            SOUND_MANAGER.playBlub()
                             this.hedgehog.setState("IDLE")
                             movingObject = fruit
                             break
@@ -396,17 +347,7 @@ export class GameField extends Container {
         this.time += this.slowTime ? 0.3 : 1
     }
 
-    private removeFruit(fruit: Fruit) {
-        this.fruits.remove(fruit)
-        this.addPoints(fruit.points)
-        if (this.fruits.length === 0) {
-            this.disableInput()
-            this.winScreen.setPointsAndStars(this.points)
-            this.winScreen.blendIn()
-        }
-    }
-
-    private disableInput() {
+    disableInput() {
         this.inputManager.setEnabled(false)
     }
 }

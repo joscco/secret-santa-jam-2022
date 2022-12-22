@@ -878,6 +878,36 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">assets/gameScreen/ui/arrowButton.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>75,48,151,95</rect>
+                <key>scale9Paddings</key>
+                <rect>75,48,151,95</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/ui/backButtonSymbol.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>12,15,23,31</rect>
+                <key>scale9Paddings</key>
+                <rect>12,15,23,31</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">assets/gameScreen/ui/energyBarInner.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -908,6 +938,67 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">assets/gameScreen/ui/musicSymbol.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>10,15,19,29</rect>
+                <key>scale9Paddings</key>
+                <rect>10,15,19,29</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/ui/sliderInner.png</key>
+            <key type="filename">assets/gameScreen/ui/sliderOuter.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>6,17,12,33</rect>
+                <key>scale9Paddings</key>
+                <rect>6,17,12,33</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/ui/sliderKnob.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>4,5,9,9</rect>
+                <key>scale9Paddings</key>
+                <rect>4,5,9,9</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
+            <key type="filename">assets/gameScreen/ui/soundSymbol.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>12,14,23,27</rect>
+                <key>scale9Paddings</key>
+                <rect>12,14,23,27</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">assets/gameScreen/ui/star_empty.png</key>
             <key type="filename">assets/gameScreen/ui/star_full.png</key>
             <struct type="IndividualSpriteSettings">
@@ -925,6 +1016,9 @@
                 <false/>
             </struct>
             <key type="filename">assets/levelScreen/level1Bug.png</key>
+            <key type="filename">assets/levelScreen/level2Bug.png</key>
+            <key type="filename">assets/levelScreen/level3Bug.png</key>
+            <key type="filename">assets/levelScreen/level4Bug.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0,0</point_f>

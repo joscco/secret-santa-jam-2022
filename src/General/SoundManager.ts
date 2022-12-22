@@ -9,7 +9,7 @@ export class SoundManager {
     private musicVolume: number = 1;
 
     constructor() {
-        this.mainMusic = SoundManager.createHowl("music/Main.ogg", true)
+        this.mainMusic = SoundManager.createHowl("music/main.wav", true)
 
         this.blubs = SoundManager.createHowls(["click/Blub1.ogg", "click/Blub2.ogg"])
         this.talkSounds = SoundManager.createHowls([
@@ -39,13 +39,14 @@ export class SoundManager {
     static createHowl(source: string, loop: boolean = false): Howl {
         return new Howl({
             src: "assets/sounds/" + source,
-            html5: true,
             loop: loop
         })
     }
 
     playMusic() {
-        this.mainMusic.play()
+        if(!this.mainMusic.playing()) {
+            this.mainMusic.play()
+        }
     }
 
     stopMusic() {

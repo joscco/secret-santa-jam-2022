@@ -1,5 +1,5 @@
 import {Sprite, Text, TextStyle} from 'pixi.js';
-import {ASSET_MANAGER, CustomApp, GAME_HEIGHT, GAME_WIDTH, SCENE_MANAGER} from "../index";
+import {ASSET_MANAGER, CustomApp, GAME_HEIGHT, GAME_WIDTH, SCENE_MANAGER, SOUND_MANAGER} from "../index";
 import Scene from "./Basics/Scene";
 import {Texture} from "@pixi/core";
 import Tweener from "../General/Tweener";
@@ -24,6 +24,7 @@ export class LoadingScene extends Scene {
         this.background.cursor = "pointer"
         this.background.on("pointertap", () => {
             if (this.loadingComplete) {
+                SOUND_MANAGER.playMusic()
                 SCENE_MANAGER.startWithTransition("startScene")
             }
         })

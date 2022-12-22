@@ -75,6 +75,14 @@ const TEXTURE_MANIFEST = {
     outerFruitBar: "gameScreen/ui/energyBarOuter",
     emptyStar: "gameScreen/ui/star_empty",
     fullStar: "gameScreen/ui/star_full",
+    sliderInner: "gameScreen/ui/sliderInner",
+    sliderOuter: "gameScreen/ui/sliderOuter",
+    sliderKnob: "gameScreen/ui/sliderKnob",
+    soundSymbol: "gameScreen/ui/soundSymbol",
+    musicSymbol: "gameScreen/ui/musicSymbol",
+    backButtonSymbol: "gameScreen/ui/backButtonSymbol",
+    arrowButton: "gameScreen/ui/arrowButton",
+    backArrowButton: "gameScreen/ui/backArrowButton",
 
     // rocks
     rock0: "gameScreen/rocks/rock_0",

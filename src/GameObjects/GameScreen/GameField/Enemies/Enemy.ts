@@ -4,21 +4,25 @@ import Tweener from "../../../../General/Tweener";
 import {Easing} from "@tweenjs/tween.js";
 import {Vector2D, vectorDistance} from "../../../../General/Helpers";
 
-export type ENEMY_TYPE = "ANT" | "BUG"
+export type ENEMY_TYPE = "ANT" | "BUG" | "BOMB_BUG"
 
 export class Enemy extends Container {
-    killRadius = 40
+    private type: ENEMY_TYPE;
+    private killRadius = 40
     private points: number = 5;
-    sprite: Sprite;
-    isDead: boolean = false
-    private deadpointText: Text;
-    private type: ENEMY_TYPE = "ANT";
+    private isDead: boolean = false
 
-    constructor() {
+    readonly sprite: Sprite;
+    private readonly deadpointText: Text;
+
+    constructor(type: ENEMY_TYPE = "ANT") {
         super();
+
+        this.type = type
 
         this.sprite = new Sprite(ASSET_MANAGER.getTextureAsset("ant"))
         this.sprite.anchor.set(0.5)
+
         this.deadpointText = new Text(`${this.points}`, new TextStyle({
             fontFamily: "Futurahandwritten",
             fill: "#ffffff",
@@ -32,14 +36,6 @@ export class Enemy extends Container {
 
     isKilledByPosition(playerPosition: Vector2D) {
         return vectorDistance(this.getGlobalPosition(), playerPosition) <= this.killRadius
-    }
-
-    setType(type: ENEMY_TYPE) {
-        this.type = type
-    }
-
-    spawn() {
-
     }
 
     kill() {
@@ -72,6 +68,10 @@ export class Enemy extends Container {
 
         scaleInTween.chain(moveUpTween, alphaOutTween)
             .start()
+    }
+
+    getType(): ENEMY_TYPE {
+        return this.type
     }
 
     getPoints() {
