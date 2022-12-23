@@ -12,11 +12,12 @@ export class AntMountain extends EnemyGroup {
     delay: number = 50
     speed: number = 1
 
-    constructor(position: Vector2D, fruits: Fruit[], ants: number, delay: number, offset: number) {
+    constructor(position: Vector2D, fruits: Fruit[], ants: number, delay: number, offset: number, speed: number) {
         super(ants, "ANT");
 
         this.delay = delay
         this.offset = offset
+        this.speed = speed
 
         this.enemies.forEach(enemy => enemy.position = position)
         this.fruits = fruits
@@ -28,6 +29,7 @@ export class AntMountain extends EnemyGroup {
 
     move(index: number, time: number, timeDelta: number, prevPosition: Vector2D): Vector2D {
         if (time > index * this.offset + this.delay) {
+            this.enemies[index].isHome = false
             if (!this.nearestFruit || this.nearestFruit.isDead()) {
                 this.nearestFruit = this.fruits.filter(fruit => !fruit.isDead()).sort((a, b) => vectorDistance(a, prevPosition) - vectorDistance(b, prevPosition))[0]
                 if (!this.nearestFruit) {

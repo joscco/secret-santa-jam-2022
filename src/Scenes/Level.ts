@@ -20,7 +20,8 @@ export type AntMountainConfig = {
     ants: number,
     position: number[],
     offset: number,
-    delay: number
+    delay: number,
+    speed: number
 }
 
 export type AntCircleConfig = {
@@ -109,7 +110,7 @@ export class Level extends Scene {
 
         for (let antMountainConfig of this.levelConfig.antMountains) {
             let position = {x: antMountainConfig.position[0], y: antMountainConfig.position[1]}
-            let antMountain = new AntMountain(position, this.fruits, antMountainConfig.ants, antMountainConfig.delay, antMountainConfig.offset)
+            let antMountain = new AntMountain(position, this.fruits, antMountainConfig.ants, antMountainConfig.delay, antMountainConfig.offset, antMountainConfig.speed)
             this.enemyGroups?.push(antMountain)
         }
 

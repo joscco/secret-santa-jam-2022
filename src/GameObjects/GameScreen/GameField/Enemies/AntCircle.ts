@@ -8,6 +8,7 @@ export class AntCircle extends EnemyGroup {
     constructor(numberOfAnts: number, radius: number) {
         super(numberOfAnts, "ANT");
         this.radius = radius
+        this.enemies.forEach(enemy => enemy.isHome = false)
     }
 
     move(index: number, time: number): Vector2D {

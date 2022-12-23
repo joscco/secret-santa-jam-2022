@@ -44,6 +44,7 @@ export class Fruit extends Container {
 
     update(removeFunction: (fruit: Fruit) => void) {
         this.points = Math.max(this.points - this.eaters.length * 0.05, 0)
+        this.liveBar.setPoints(this.points)
         this.liveBar.setRatio(this.points / this.initialPoints)
         if (this.points === 0 && !this.dead) {
             this.moveToAndBlendOut({x: this.position.x, y: this.position.y})

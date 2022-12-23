@@ -259,7 +259,7 @@ export class GameField extends Container {
 
                     // Change to fruit near enough
                     for (let fruit of this.fruits) {
-                        if (!(movingObject instanceof Fruit) && fruit.isAffectedByPosition(movingObject.position)) {
+                        if (movingObject != fruit && fruit.isAffectedByPosition(movingObject.position)) {
                             offset = vectorSub(fruit.position, movingObject.position)
                             this.killEaters(fruit)
                             SOUND_MANAGER.playBlub()
@@ -273,8 +273,8 @@ export class GameField extends Container {
                         let fruit = (movingObject as Fruit)
                         for (let hole of this.holes) {
                             if (hole.isAffectedByPosition(movingObject.position)) {
-                                this.removeFruit(fruit)
                                 this.addPoints(Math.ceil(fruit.points))
+                                this.removeFruit(fruit)
                                 fruit.moveToAndBlendOut(hole.position)
                                 movingObject = undefined
                                 break
@@ -340,23 +340,15 @@ export class GameField extends Container {
 
     private drawPolygonWall(poly: Polygon2D) {
         poly.forEachSideDo((start, end) => {
-            let signX = Math.sign(end.x - start.x)
-            let signY = Math.sign(end.y - start.y)
-            let distanceX = Math.abs(end.x - start.x)
-            let distanceY = Math.abs(end.y - start.y)
-            let x = 0
-            let y = 0
-
-            while (x < distanceX || y < distanceY) {
+            let stones = Math.floor(vectorDistance(start, end) / 20)
+            for (let i = 0; i < stones; i++) {
                 let randomIndex = Math.floor(Math.random() * 35)
 
                 let sprite = new Sprite(ASSET_MANAGER.getTextureAsset(`rock${randomIndex}` as TextureAssetID))
-                sprite.position = vectorAdd(start, {
-                    x: signX * x - 15 + Math.random() * 30,
-                    y: signY * y + Math.random() * 30
+                sprite.position = vectorAdd(vectorLerp(start, end, i / stones), {
+                    x: -10 + Math.random() * 20,
+                    y: Math.random() * 30
                 })
-                x += sprite.width / 2
-                y += sprite.height / 2
                 sprite.anchor.set(0.5, 1)
                 sprite.zIndex = sprite.position.y - 15
                 sprite.scale.x = Math.random() > 0.5 ? 1 : -1

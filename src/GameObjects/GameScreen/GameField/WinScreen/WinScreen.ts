@@ -7,6 +7,7 @@ import {Star} from "../UI/Star";
 import {WinScreenNextLevelButton} from "./WinScreenNextLevelButton";
 import {WinScreenBackToLevelsButton} from "./WinScreenBackToLevelsButton";
 import {WinScreenTryAgainButton} from "./WinScreenTryAgainButton";
+import {sleep} from "../../../../General/Helpers";
 
 export class WinScreen extends Container {
     level: number
@@ -95,6 +96,7 @@ export class WinScreen extends Container {
     }
 
     async blendIn() {
+        await sleep(200)
         await Tweener.of(this)
             .to({y: GAME_HEIGHT / 2})
             .duration(500)

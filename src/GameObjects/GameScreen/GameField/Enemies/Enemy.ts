@@ -7,6 +7,7 @@ import {Vector2D, vectorDistance} from "../../../../General/Helpers";
 export type ENEMY_TYPE = "ANT" | "BUG" | "BOMB_BUG"
 
 export class Enemy extends Container {
+    isHome: boolean = true
     private type: ENEMY_TYPE;
     private killRadius = 40
     private points: number = 5;
@@ -36,7 +37,7 @@ export class Enemy extends Container {
     }
 
     isKilledByPosition(playerPosition: Vector2D) {
-        return vectorDistance(this.getGlobalPosition(), playerPosition) <= this.killRadius
+        return !this.isHome && vectorDistance(this.getGlobalPosition(), playerPosition) <= this.killRadius
     }
 
     kill() {
