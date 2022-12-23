@@ -16,8 +16,9 @@ import {StartScene} from "./Scenes/StartScene";
 // Type Change Imports
 import "./General/TypeChanges/Array"
 import "./General/TypeChanges/Graphics"
-import {CONFIG_LEVEL_1, Level} from "./Scenes/Level";
+import { Level} from "./Scenes/Level";
 import {LoadingScene} from "./Scenes/LoadingScene";
+import {CONFIG_LEVEL_1, CONFIG_LEVEL_2, CONFIG_LEVEL_3, CONFIG_LEVEL_4} from "./Scenes/LevelConfigs";
 
 export const GAME_WIDTH: number = 1920;
 export const GAME_HEIGHT: number = 1080;
@@ -77,6 +78,9 @@ const main = async () => {
     LEVEL_SCREEN = new LevelChooserScene(App)
     SCENE_MANAGER.add("levelChooserScene", LEVEL_SCREEN)
     SCENE_MANAGER.add("level_1", new Level(CONFIG_LEVEL_1))
+    SCENE_MANAGER.add("level_2", new Level(CONFIG_LEVEL_2))
+    SCENE_MANAGER.add("level_3", new Level(CONFIG_LEVEL_3))
+    SCENE_MANAGER.add("level_4", new Level(CONFIG_LEVEL_4))
 };
 
 function initApp() {

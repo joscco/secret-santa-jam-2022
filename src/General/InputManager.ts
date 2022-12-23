@@ -9,6 +9,7 @@ export class InputManager {
     private mouseDown: boolean = false
 
     getMousePosition(): Vector2D {
+        console.log(clamp(this.mousePosition.x, 0, GAME_WIDTH),clamp(this.mousePosition.y, 0, GAME_HEIGHT))
         return {
             x: clamp(this.mousePosition.x, 0, GAME_WIDTH),
             y: clamp(this.mousePosition.y, 0, GAME_HEIGHT)

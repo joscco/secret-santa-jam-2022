@@ -38,45 +38,12 @@ export type LevelConfig = {
     level: number,
     stars: number[]
     fruits: FruitConfig[],
+    startPosition: number[],
     holes: number[][],
     polygons: Polygon2D[],
     antMountains: AntMountainConfig[],
     antCircles: AntCircleConfig[],
     bumpers: BumperConfig[]
-}
-
-export const CONFIG_LEVEL_1: LevelConfig = {
-    level: 1,
-    stars: [200, 300, 400],
-    fruits: [{type: "apple", position: [400, 400]}, {type: "pear", position: [800, 500]}],
-    holes: [[1100, 500]],
-    polygons: [new Polygon2D([
-        {x: 100, y: 400},
-        {x: 450, y: 400},
-        {x: 450, y: 100},
-        {x: 1920 - 450, y: 100},
-        {x: 1920 - 450, y: 250},
-        {x: 1920 - 100, y: 250},
-        {x: 1920 - 100, y: 1080 - 100},
-        {x: 100, y: 1080 - 100}
-    ]), new Polygon2D([
-        {x: 1300, y: 300},
-        {x: 1300, y: 700},
-    ])],
-    antMountains: [{
-        ants: 200,
-        position: [200, 300],
-        offset: 50,
-        delay: 50
-    }],
-    antCircles: [{
-        ants: 50,
-        position: [800, 500],
-        radius: 300,
-    }],
-    bumpers: [
-        {position: [500, 600], angle: 90}
-    ]
 }
 
 export class Level extends Scene {
@@ -150,6 +117,8 @@ export class Level extends Scene {
             this.blockPolygons, this.bumpers, this.holes, this.enemyGroups, this.fruits,
             (fruit: Fruit) => this.removeFruit(fruit), (amount: number) => this.addPoints(amount)
         )
+
+        this.gameField.hedgehog.position.set(...this.levelConfig.startPosition)
 
         this.uiOverlay = new GameFieldUI(this.level, this.stars, 0)
         this.winScreen = new WinScreen(this.level, this.stars)
