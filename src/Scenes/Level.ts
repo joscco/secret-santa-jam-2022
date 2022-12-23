@@ -79,12 +79,14 @@ export class Level extends Scene {
 
     private initLevel() {
         // Set fruits
+        this.fruits = []
         for (let fruitConfig of this.levelConfig.fruits) {
             let fruit = new Fruit(fruitConfig.type)
             fruit.position.set(fruitConfig.position[0], fruitConfig.position[1])
             this.fruits.push(fruit)
         }
 
+        this.holes = []
         for (let holeConfig of this.levelConfig.holes) {
             let hole = new Hole()
             hole.position.set(holeConfig[0], holeConfig[1])
@@ -93,6 +95,7 @@ export class Level extends Scene {
 
         this.blockPolygons = this.levelConfig.polygons
 
+        this.bumpers = []
         for(let bumperConfig of this.levelConfig.bumpers) {
             let bumper = new Bumper()
             bumper.position.set(...bumperConfig.position)

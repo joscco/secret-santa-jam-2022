@@ -87,7 +87,7 @@ export const CONFIG_LEVEL_2: LevelConfig = {
 
 export const CONFIG_LEVEL_3: LevelConfig = {
     level: 3,
-    stars: [2400, 2500, 2750],
+    stars: [2000, 2250, 2500],
     holes: [[GW / 2, 200]],
     startPosition: [GW / 2, GH - 250],
     polygons: [new Polygon2D([
