@@ -12,8 +12,11 @@ export class AntMountain extends EnemyGroup {
     delay: number = 50
     speed: number = 1
 
-    constructor(position: Vector2D, fruits: Fruit[], maxNumberAnts: number) {
-        super(maxNumberAnts, "ANT");
+    constructor(position: Vector2D, fruits: Fruit[], ants: number, delay: number, offset: number) {
+        super(ants, "ANT");
+
+        this.delay = delay
+        this.offset = offset
 
         this.enemies.forEach(enemy => enemy.position = position)
         this.fruits = fruits

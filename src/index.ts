@@ -16,11 +16,12 @@ import {StartScene} from "./Scenes/StartScene";
 // Type Change Imports
 import "./General/TypeChanges/Array"
 import "./General/TypeChanges/Graphics"
-import {Level} from "./Scenes/Level";
+import {CONFIG_LEVEL_1, Level} from "./Scenes/Level";
 import {LoadingScene} from "./Scenes/LoadingScene";
 
 export const GAME_WIDTH: number = 1920;
 export const GAME_HEIGHT: number = 1080;
+export const NUMBER_LEVELS: number = 4
 
 export var App: CustomApp;
 export var GAME_DATA: GameData;
@@ -75,7 +76,7 @@ const main = async () => {
     SCENE_MANAGER.add("startScene", new StartScene(App))
     LEVEL_SCREEN = new LevelChooserScene(App)
     SCENE_MANAGER.add("levelChooserScene", LEVEL_SCREEN)
-    SCENE_MANAGER.add("level_1", new Level(1, [200, 300, 400]))
+    SCENE_MANAGER.add("level_1", new Level(CONFIG_LEVEL_1))
 };
 
 function initApp() {

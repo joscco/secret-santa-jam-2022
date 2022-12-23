@@ -1,36 +1,22 @@
 import {Container, Sprite} from "pixi.js";
-import {distanceSegmentToPoint, Vector2D, vectorDistance} from "../../../General/Helpers";
 import {OutlineFilter} from "@pixi/filter-outline";
 import {ASSET_MANAGER} from "../../../index";
 
 export class Bumper extends Container {
 
-    hitRadius = 40
+    topPoint: Container
+    bottomPoint: Container
     sprite: Sprite
 
     constructor() {
         super()
         this.sprite = new Sprite(ASSET_MANAGER.getTextureAsset("bumper"))
         this.sprite.anchor.set(0.5)
-        this.addChild(this.sprite)
-    }
-
-    isAffectedByPosition(hedgeHogPosition: Vector2D): boolean {
-        return vectorDistance(hedgeHogPosition, this.position) <= this.hitRadius + 2
-    }
-
-    isHitByPath(linePath: Vector2D[]): boolean {
-        for (let [start, end] of linePath.slideWindow(2)) {
-            if (this.isHitByLine(start, end)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private isHitByLine(start: Vector2D, end: Vector2D): boolean {
-        let distance = distanceSegmentToPoint(start, end, this.getGlobalPosition())
-        return distance <= this.hitRadius
+        this.topPoint = new Container()
+        this.topPoint.position.set(0, -60)
+        this.bottomPoint = new Container()
+        this.bottomPoint.position.set(0, 60)
+        this.addChild(this.sprite, this.topPoint, this.bottomPoint)
     }
 
     highlight() {

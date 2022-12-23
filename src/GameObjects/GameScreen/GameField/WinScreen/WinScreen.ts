@@ -1,11 +1,12 @@
 import {Container, Sprite, Text} from "pixi.js";
 import Tweener from "../../../../General/Tweener";
-import {GAME_HEIGHT, GAME_WIDTH} from "../../../../index";
+import {GAME_HEIGHT, GAME_WIDTH, NUMBER_LEVELS} from "../../../../index";
 import {Texture} from "@pixi/core";
 import {Easing} from "@tweenjs/tween.js";
 import {Star} from "../UI/Star";
 import {WinScreenNextLevelButton} from "./WinScreenNextLevelButton";
 import {WinScreenBackToLevelsButton} from "./WinScreenBackToLevelsButton";
+import {WinScreenTryAgainButton} from "./WinScreenTryAgainButton";
 
 export class WinScreen extends Container {
     level: number
@@ -16,6 +17,7 @@ export class WinScreen extends Container {
 
     nextButton: WinScreenNextLevelButton
     backToLevelsButton: WinScreenBackToLevelsButton
+    tryAgainButton: WinScreenTryAgainButton
 
     constructor(level: number, stars: number[]) {
         super();
@@ -59,11 +61,16 @@ export class WinScreen extends Container {
 
         this.nextButton = new WinScreenNextLevelButton(level + 1)
         this.nextButton.position.set(550, 0)
+        this.nextButton.scale.set(0)
+
+        this.tryAgainButton = new WinScreenTryAgainButton(level)
+        this.tryAgainButton.position.set(550, -40)
+        this.tryAgainButton.scale.set(0)
 
         this.backToLevelsButton = new WinScreenBackToLevelsButton()
         this.backToLevelsButton.position.set(-550, 0)
 
-        this.addChild(this.nextButton, this.backToLevelsButton)
+        this.addChild(this.nextButton, this.backToLevelsButton, this.tryAgainButton)
     }
 
     setPointsAndStars(points: number) {
@@ -72,6 +79,18 @@ export class WinScreen extends Container {
             if (points >= star.points) {
                 star.fillStar()
             }
+        }
+        if (points >= this.stars[0].points) {
+            if (this.level < NUMBER_LEVELS) {
+                this.nextButton.scale.set(1)
+            } else {
+                this.nextButton.scale.set(0)
+            }
+
+            this.tryAgainButton.scale.set(0)
+        } else {
+            this.tryAgainButton.scale.set(1)
+            this.nextButton.scale.set(0)
         }
     }
 

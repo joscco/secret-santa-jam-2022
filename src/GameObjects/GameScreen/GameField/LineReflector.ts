@@ -84,8 +84,8 @@ export class LineReflector {
 
     private findBumperHitPoints(rayStart: Vector2D, rayEnd: Vector2D, rayDirection: Vector2D, rayLength: number, intersectionPoints: { point: Vector2D; lineDirection: Vector2D; cutAngle: number; isBumper: boolean }[]) {
         for (let bumper of this.bumpers) {
-            let bumperStart = vectorAdd(bumper.position, {x: 0, y: -60})
-            let bumperEnd = vectorAdd(bumper.position, {x: 0, y: 60})
+            let bumperStart = bumper.topPoint.getGlobalPosition()
+            let bumperEnd = bumper.bottomPoint.getGlobalPosition()
             let intersection = findLineIntersection(rayStart, rayEnd, bumperStart, bumperEnd)
             let cutAngle = Math.acos(Math.abs(vectorDot(rayDirection, {x: 0, y: 120})) / (rayLength * 120))
             if (intersection) {

@@ -2,15 +2,85 @@ import Scene from "./Basics/Scene";
 import {GameField} from "../GameObjects/GameScreen/GameField/GameField";
 import {GameFieldUI} from "../GameObjects/GameScreen/GameField/UI/GameFieldUI";
 import {WinScreen} from "../GameObjects/GameScreen/GameField/WinScreen/WinScreen";
-import {Fruit} from "../GameObjects/GameScreen/GameField/Fruit/Fruit";
+import {Fruit, FruitType} from "../GameObjects/GameScreen/GameField/Fruit/Fruit";
 import {Bumper} from "../GameObjects/GameScreen/GameField/Bumper";
 import {Hole} from "../GameObjects/GameScreen/GameField/Hole";
 import {Polygon2D} from "../General/Polygon2D";
 import {AntCircle} from "../GameObjects/GameScreen/GameField/Enemies/AntCircle";
-import {GAME_DATA, GAME_HEIGHT, GAME_WIDTH} from "../index";
+import {GAME_DATA} from "../index";
 import {AntMountain} from "../GameObjects/GameScreen/GameField/Enemies/AntMountain";
+import {EnemyGroup} from "../GameObjects/GameScreen/GameField/Enemies/EnemyGroup";
+
+export type FruitConfig = {
+    position: number[],
+    type: FruitType
+}
+
+export type AntMountainConfig = {
+    ants: number,
+    position: number[],
+    offset: number,
+    delay: number
+}
+
+export type AntCircleConfig = {
+    ants: number,
+    position: number[],
+    radius: number
+}
+
+export type BumperConfig = {
+    position: number[],
+    angle: number
+}
+
+export type LevelConfig = {
+    level: number,
+    stars: number[]
+    fruits: FruitConfig[],
+    holes: number[][],
+    polygons: Polygon2D[],
+    antMountains: AntMountainConfig[],
+    antCircles: AntCircleConfig[],
+    bumpers: BumperConfig[]
+}
+
+export const CONFIG_LEVEL_1: LevelConfig = {
+    level: 1,
+    stars: [200, 300, 400],
+    fruits: [{type: "apple", position: [400, 400]}, {type: "pear", position: [800, 500]}],
+    holes: [[1100, 500]],
+    polygons: [new Polygon2D([
+        {x: 100, y: 400},
+        {x: 450, y: 400},
+        {x: 450, y: 100},
+        {x: 1920 - 450, y: 100},
+        {x: 1920 - 450, y: 250},
+        {x: 1920 - 100, y: 250},
+        {x: 1920 - 100, y: 1080 - 100},
+        {x: 100, y: 1080 - 100}
+    ]), new Polygon2D([
+        {x: 1300, y: 300},
+        {x: 1300, y: 700},
+    ])],
+    antMountains: [{
+        ants: 200,
+        position: [200, 300],
+        offset: 50,
+        delay: 50
+    }],
+    antCircles: [{
+        ants: 50,
+        position: [800, 500],
+        radius: 300,
+    }],
+    bumpers: [
+        {position: [500, 600], angle: 90}
+    ]
+}
 
 export class Level extends Scene {
+    levelConfig: LevelConfig
     level: number
     stars: number[]
     points: number
@@ -19,19 +89,19 @@ export class Level extends Scene {
     winScreen?: WinScreen
     uiOverlay?: GameFieldUI
 
+    enemyGroups?: EnemyGroup[]
     fruits: Fruit[] = []
     holes: Hole[] = []
     bumpers: Bumper[] = []
 
     blockPolygons?: Polygon2D[]
-    antCircle?: AntCircle
-    antCircle2?: AntCircle
 
-    constructor(level: number, stars: number[]) {
+    constructor(levelConfig: LevelConfig) {
         super();
         this.points = 0
-        this.level = level
-        this.stars = stars
+        this.levelConfig = levelConfig
+        this.level = levelConfig.level
+        this.stars = levelConfig.stars
     }
 
     beforeFadeIn() {
@@ -41,52 +111,47 @@ export class Level extends Scene {
 
     private initLevel() {
         // Set fruits
-        let apple = new Fruit("apple")
-        apple.position.set(900, 600)
-        let pear = new Fruit("pear")
-        pear.position.set(1700, 600)
-        this.fruits.push(apple, pear)
+        for (let fruitConfig of this.levelConfig.fruits) {
+            let fruit = new Fruit(fruitConfig.type)
+            fruit.position.set(fruitConfig.position[0], fruitConfig.position[1])
+            this.fruits.push(fruit)
+        }
 
-        let hole = new Hole()
-        hole.position.set(1100, 500)
-        this.holes.push(hole)
+        for (let holeConfig of this.levelConfig.holes) {
+            let hole = new Hole()
+            hole.position.set(holeConfig[0], holeConfig[1])
+            this.holes.push(hole)
+        }
 
-        let bumper = new Bumper()
-        bumper.position.set(1100, 800)
-        let bumper2 = new Bumper()
-        bumper2.position.set(800, 800)
-        this.bumpers.push(bumper, bumper2)
+        this.blockPolygons = this.levelConfig.polygons
 
-        this.blockPolygons = [
-            new Polygon2D([
-                {x: 100, y: 400},
-                {x: 450, y: 400},
-                {x: 450, y: 100},
-                {x: GAME_WIDTH - 450, y: 100},
-                {x: GAME_WIDTH - 450, y: 250},
-                {x: GAME_WIDTH - 100, y: 250},
-                {x: GAME_WIDTH - 100, y: GAME_HEIGHT - 100},
-                {x: 100, y: GAME_HEIGHT - 100}
-            ]),
-            new Polygon2D([
-                {x: 1300, y: 300},
-                {x: 1300, y: 700},
-            ])]
+        for(let bumperConfig of this.levelConfig.bumpers) {
+            let bumper = new Bumper()
+            bumper.position.set(...bumperConfig.position)
+            bumper.angle = bumperConfig.angle
+            this.bumpers.push(bumper)
+        }
 
-        this.antCircle = new AntCircle(60)
-        this.antCircle.position.set(GAME_WIDTH / 2 + 150, GAME_HEIGHT / 2)
+        this.enemyGroups = []
 
-        this.antCircle2 = new AntCircle(60)
-        this.antCircle2.position.set(GAME_WIDTH / 2 - 150, GAME_HEIGHT / 2)
+        for (let antCircleConfig of this.levelConfig.antCircles) {
+            let antCircle = new AntCircle(antCircleConfig.ants, antCircleConfig.radius)
+            antCircle.position.set(...antCircleConfig.position)
+            this.enemyGroups?.push(antCircle)
+        }
 
-        let antMountain = new AntMountain({x: 300, y: 600}, this.fruits, 200)
+        for (let antMountainConfig of this.levelConfig.antMountains) {
+            let position = {x: antMountainConfig.position[0], y: antMountainConfig.position[1]}
+            let antMountain = new AntMountain(position, this.fruits, antMountainConfig.ants, antMountainConfig.delay, antMountainConfig.offset)
+            this.enemyGroups?.push(antMountain)
+        }
 
         this.gameField = new GameField(
-            this.blockPolygons, this.bumpers, this.holes, [this.antCircle, this.antCircle2, antMountain], this.fruits,
+            this.blockPolygons, this.bumpers, this.holes, this.enemyGroups, this.fruits,
             (fruit: Fruit) => this.removeFruit(fruit), (amount: number) => this.addPoints(amount)
         )
 
-        this.uiOverlay = new GameFieldUI(1, this.stars, 0)
+        this.uiOverlay = new GameFieldUI(this.level, this.stars, 0)
         this.winScreen = new WinScreen(this.level, this.stars)
 
         this.addChild(this.gameField, this.uiOverlay, this.winScreen)

@@ -121,8 +121,8 @@ export default class SceneManager extends Container{
         }
     }
 
-    public async startWithTransition(name: string): Promise<void> {
-        if (!this.contains(name) || name === this.current) {
+    public async startWithTransition(name: string, allowRestart: boolean = false): Promise<void> {
+        if (!allowRestart && (!this.contains(name) || name === this.current)) {
             return;
         }
 
@@ -218,5 +218,4 @@ export default class SceneManager extends Container{
     public get sceneNames(): string[] {
         return Object.keys(this.scenes);
     }
-
 }

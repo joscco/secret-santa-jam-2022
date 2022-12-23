@@ -3,14 +3,17 @@ import {Vector2D} from "../../../../General/Helpers";
 
 export class AntCircle extends EnemyGroup {
 
-    constructor(numberOfAnts: number) {
+    radius: number
+
+    constructor(numberOfAnts: number, radius: number) {
         super(numberOfAnts, "ANT");
+        this.radius = radius
     }
 
     move(index: number, time: number): Vector2D {
         return {
-            x: 300 * Math.sin(2 * Math.PI / this.enemies.length * index + time / 500) - 10 * Math.cos(16 * Math.PI / this.enemies.length * index + time / 75),
-            y: 300 * Math.cos(2 * Math.PI / this.enemies.length * index + time / 500) + 10 * Math.sin(16 * Math.PI / this.enemies.length * index + time / 75)
+            x: this.radius * Math.sin(2 * Math.PI / this.enemies.length * index + time / 500) - this.radius / 30 * Math.cos(16 * Math.PI / this.enemies.length * index + time / 75),
+            y: this.radius * Math.cos(2 * Math.PI / this.enemies.length * index + time / 500) + this.radius / 30 * Math.sin(16 * Math.PI / this.enemies.length * index + time / 75)
         };
     }
 

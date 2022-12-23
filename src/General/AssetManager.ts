@@ -83,6 +83,7 @@ const TEXTURE_MANIFEST = {
     backButtonSymbol: "gameScreen/ui/backButtonSymbol",
     arrowButton: "gameScreen/ui/arrowButton",
     backArrowButton: "gameScreen/ui/backArrowButton",
+    tryAgainButton: "gameScreen/ui/tryAgainButton",
 
     // rocks
     rock0: "gameScreen/rocks/rock_0",
