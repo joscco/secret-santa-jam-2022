@@ -66,12 +66,12 @@ const main = async () => {
     MUSIC_BUTTON = new MusicButton()
     MUSIC_BUTTON.position.set(GAME_WIDTH - 170, 80)
     MUSIC_BUTTON.zIndex = 110
-    App.stage.addChild(MUSIC_BUTTON);
+    //App.stage.addChild(MUSIC_BUTTON);
 
     SOUND_BUTTON = new SoundButton()
     SOUND_BUTTON.position.set(GAME_WIDTH - 310, 80)
     SOUND_BUTTON.zIndex = 110
-    App.stage.addChild(SOUND_BUTTON);
+    //App.stage.addChild(SOUND_BUTTON);
 
     // Finally adding Scenes:
     SCENE_MANAGER.add("startScene", new StartScene(App))
@@ -94,8 +94,8 @@ function initApp() {
     // Display application properly
     document.body.appendChild(renderer.view);
     document.body.style.margin = '0';
-    renderer.view.style!.width = GAME_WIDTH / 2 + "px"
-    renderer.view.style!.height = GAME_HEIGHT / 2 + "px"
+    renderer.view.style!.width = "100%"
+    renderer.view.style!.height = "100%"
 
     const stage = new Container()
     stage.sortableChildren = true
