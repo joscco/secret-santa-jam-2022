@@ -288,7 +288,7 @@ export class GameField extends Container {
                     }
 
                     if (movingObject) {
-                        this.rope.setFirstPoint(vectorSub(movingObject.position, offset))
+                        this.rope.setFirstPoint(movingObject.position)
                     } else {
                         this.rope.setPath([])
                     }

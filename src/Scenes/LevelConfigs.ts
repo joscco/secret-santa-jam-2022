@@ -87,36 +87,70 @@ export const CONFIG_LEVEL_2: LevelConfig = {
 
 export const CONFIG_LEVEL_3: LevelConfig = {
     level: 3,
-    stars: [200, 300, 400],
-    fruits: [
-        {type: "apple", position: [400, 400]},
-        {type: "pear", position: [800, 500]}],
-    holes: [[1100, 500]],
-    startPosition: [540, 200],
+    stars: [2400, 2500, 2750],
+    holes: [[GW / 2, 200]],
+    startPosition: [GW / 2, GH - 250],
     polygons: [new Polygon2D([
-        {x: 100, y: 400},
-        {x: 450, y: 400},
-        {x: 450, y: 100},
-        {x: 1920 - 450, y: 100},
-        {x: 1920 - 450, y: 250},
-        {x: 1920 - 100, y: 250},
-        {x: 1920 - 100, y: 1080 - 100},
-        {x: 100, y: 1080 - 100}
-    ])],
-    // antMountains: [{
-    //     ants: 200,
-    //     position: [200, 300],
-    //     offset: 50,
-    //     delay: 50
-    // }],
-    antMountains: [],
-    antCircles: [{
-        ants: 50,
-        position: [800, 500],
-        radius: 300,
+        {x: 600, y: 100},
+        {x: GW - 600, y: 100},
+        {x: GW - 400, y: GH / 2 + 100},
+        // Go a bit diagonally back
+        {x: GW - 500, y: GH / 2 - 150},
+        {x: GW - 200, y: GH / 2 - 150},
+        {x: GW - 100, y: GH / 2},
+        {x: GW - 100, y: GH - 200},
+        {x: GW - 200, y: GH - 100},
+        {x: 200, y: GH - 100},
+        {x: 100, y: GH - 200},
+        {x: 100, y: GH / 2},
+        {x: 200, y: GH / 2 - 150},
+        {x: 450, y: GH / 2 - 150},
+        {x: 400, y: GH / 2 + 100},
+    ]), new Polygon2D(([
+        {x: GW / 2 - 100, y: GH / 2 - 150},
+        {x: GW / 2 + 100, y: GH / 2 - 150},
+        {x: GW / 2 + 250, y: GH / 2 + 150},
+        {x: GW / 2 - 250, y: GH / 2 + 150}
+    ]))],
+    antMountains: [{
+        ants: 200,
+        position: [GW / 2, GH / 2],
+        offset: 20,
+        delay: 0,
+        speed: 4
     }],
+    antCircles: [{
+        ants: 100,
+        position: [GW / 2, GH / 2],
+        radius: 350,
+    }],
+    fruits: [
+        {type: "apple", position: [800, GH - 250]},
+        {type: "apple", position: [680, GH - 720]},
+        {type: "apple", position: [610, GH - 550]},
+        {type: "apple", position: [540, GH - 380]},
+        {type: "apple", position: [400, GH - 260]},
+        {type: "apple", position: [280, GH/2]},
+        {type: "apple", position: [250, GH/2 + 200]},
+        // Same again symmetrical
+        {type: "apple", position: [GW - 800, GH - 250]},
+        {type: "apple", position: [GW - 680, GH - 720]},
+        {type: "apple", position: [GW - 610, GH - 550]},
+        {type: "apple", position: [GW - 540, GH - 380]},
+        {type: "apple", position: [GW - 400, GH - 260]},
+        {type: "apple", position: [GW - 280, GH/2]},
+        {type: "apple", position: [GW - 250, GH/2 + 200]},
+    ],
     bumpers: [
-        {position: [500, 600], angle: 90}
+        {position: [GW / 2 - 130, 130], angle: 90},
+        {position: [GW / 2, 130], angle: 90},
+        {position: [GW / 2 + 130, 130], angle: 90},
+        {position: [GW - 520, GH / 2 - 150], angle: -25},
+        {position: [520, GH / 2 - 150], angle: 25},
+        {position: [GW / 2 - 250, GH - 130], angle: 90},
+        {position: [GW / 2 + 250, GH - 130], angle: 90},
+        {position: [GW - 170, GH - 200], angle: 40},
+        {position: [170, GH - 200], angle: -40},
     ]
 }
 
