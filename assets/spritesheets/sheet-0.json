@@ -18,11 +18,11 @@
 },
 "gameScreen/bumper":
 {
-	"frame": {"x":268,"y":287,"w":67,"h":136},
+	"frame": {"x":268,"y":287,"w":68,"h":131},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":67,"h":136},
-	"sourceSize": {"w":67,"h":136}
+	"spriteSourceSize": {"x":0,"y":0,"w":68,"h":131},
+	"sourceSize": {"w":68,"h":131}
 },
 "gameScreen/enemies/ant":
 {
@@ -586,7 +586,7 @@
 },
 "gameScreen/ui/tryAgainButton":
 {
-	"frame": {"x":728,"y":287,"w":464,"h":245},
+	"frame": {"x":729,"y":287,"w":464,"h":245},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":464,"h":245},
@@ -626,7 +626,7 @@
 },
 "startScreen/startButton":
 {
-	"frame": {"x":339,"y":287,"w":385,"h":166},
+	"frame": {"x":340,"y":287,"w":385,"h":166},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":385,"h":166},
@@ -634,7 +634,7 @@
 },
 "startScreen/title_0":
 {
-	"frame": {"x":1196,"y":287,"w":201,"h":254},
+	"frame": {"x":1197,"y":287,"w":201,"h":254},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":201,"h":254},
@@ -642,7 +642,7 @@
 },
 "startScreen/title_1":
 {
-	"frame": {"x":1401,"y":287,"w":153,"h":254},
+	"frame": {"x":1402,"y":287,"w":153,"h":254},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":153,"h":254},
@@ -650,7 +650,7 @@
 },
 "startScreen/title_2":
 {
-	"frame": {"x":1558,"y":287,"w":164,"h":254},
+	"frame": {"x":1559,"y":287,"w":164,"h":254},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":164,"h":254},
@@ -658,7 +658,7 @@
 },
 "startScreen/title_3":
 {
-	"frame": {"x":1726,"y":287,"w":181,"h":254},
+	"frame": {"x":1727,"y":287,"w":181,"h":254},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":181,"h":254},
@@ -711,6 +711,6 @@
 	"format": "RGBA8888",
 	"size": {"w":1989,"h":831},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:823381f5a1702026c6514655ac3c0374:1cbaea616c16cf7ca7a28f622aba4e9f:61cb8e7f5ab596884c5d2a520fb1e10a$"
+	"smartupdate": "$TexturePacker:SmartUpdate:bcaa2f03a84987216fe9dc5a2b5578d7:c8174ccf4156ebcda5ead382ef7b100b:61cb8e7f5ab596884c5d2a520fb1e10a$"
 }
 }
