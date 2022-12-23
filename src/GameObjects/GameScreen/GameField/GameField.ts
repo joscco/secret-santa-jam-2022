@@ -67,7 +67,7 @@ export class GameField extends Container {
 
         this.fruits = fruits
         this.holes = holes
-        this.field = this.initRandomField()
+        this.field = GameField.initRandomField()
 
         this.hedgehog = new Hedgehog()
         this.hedgehog.position.set(GAME_WIDTH / 2 - 400, GAME_HEIGHT / 2)
@@ -107,13 +107,14 @@ export class GameField extends Container {
 
     update() {
         let mousePosition = this.inputManager.getMousePosition()
-        this.hedgehog.update()
-        this.fruits.forEach(fruit =>
-            fruit.update((fruit: Fruit) => this.removeFruit(fruit))
-        )
 
         let timeDelta = this.slowTime ? 0.3 : 1
         this.time += timeDelta
+        this.hedgehog.update(timeDelta)
+        this.fruits.forEach(fruit =>
+            fruit.update(timeDelta, (fruit: Fruit) => this.removeFruit(fruit))
+        )
+
         this.enemyGroups.map((enemy, index) => enemy.update(this.time + index * 0.6, timeDelta))
 
         if (!this.inHookShooting) {
@@ -294,13 +295,10 @@ export class GameField extends Container {
                 }
             )
             .start()
-
             .promise()
     }
 
-    private initRandomField()
-        :
-        Container {
+    static initRandomField(): Container {
         // Start with basic background
         let container = new Container()
 

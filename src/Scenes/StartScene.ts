@@ -6,11 +6,16 @@ import {Texture} from "@pixi/core";
 import {TextureAssetID} from "../General/AssetManager";
 import Tweener from "../General/Tweener";
 import {Easing} from "@tweenjs/tween.js";
+import {AntCircle} from "../GameObjects/GameScreen/GameField/Enemies/AntCircle";
+import {GameField} from "../GameObjects/GameScreen/GameField/GameField";
 
 export class StartScene extends Scene {
 
     background: Sprite;
-    // stones: Sprite[]
+    stones: Container;
+    time: number = 0
+    antCircle1: AntCircle
+    antCircle2: AntCircle
 
     pretitle: Text;
     titleContainer: Container;
@@ -30,6 +35,25 @@ export class StartScene extends Scene {
         this.background.height = GAME_HEIGHT
         this.addChild(this.background)
 
+        this.antCircle1 = new AntCircle(60, 400)
+        this.antCircle1.position.set(500, GAME_HEIGHT/2)
+        this.antCircle2 = new AntCircle(60, 400)
+        this.antCircle2.position.set(GAME_WIDTH - 500, GAME_HEIGHT/2)
+
+        this.stones = new Container()
+        this.stones.sortableChildren = true
+        for (let i = 0; i < 150; i++) {
+            let randomIndex = Math.floor(28 * Math.random())
+            let stone = new Sprite(ASSET_MANAGER.getTextureAsset(`rock${randomIndex}` as TextureAssetID))
+            stone.anchor.set(0.5, 1)
+            stone.position.set(Math.random() * GAME_WIDTH, Math.random() * GAME_HEIGHT)
+            stone.zIndex = stone.y
+            this.stones.addChild(stone)
+        }
+
+        this.stones.cacheAsBitmap = true
+        this.addChild(GameField.initRandomField(), this.antCircle1, this.antCircle2, this.stones)
+
         this.pretitle = this.addPretitle()
         this.pretitle.position.set(GAME_WIDTH / 2, 100)
 
@@ -43,6 +67,12 @@ export class StartScene extends Scene {
         this.initLetters();
     }
 
+    update(delta: number) {
+        this.time += 1
+        this.antCircle1.update(this.time, 1)
+        this.antCircle2.update(this.time, 1)
+    }
+
     private initLetters() {
         let letterX = 0
         Array.from(Array(9).keys()).map(key => {
@@ -52,7 +82,7 @@ export class StartScene extends Scene {
             let sprite = new Sprite(ASSET_MANAGER.getTextureAsset(`titleLetter${key}` as TextureAssetID))
             sprite.position.set(
                 key < 5 ? 525 + letterX : 600 + letterX,
-                - 500
+                -500
             )
             letterX += sprite.width
             this.titleContainer.addChild(sprite)
@@ -72,7 +102,7 @@ export class StartScene extends Scene {
             fontFamily: "Futurahandwritten",
             fontWeight: "bold",
             fontSize: 50,
-            fill: 0x000000
+            fill: 0xffffff
         });
         pretitle.anchor.set(0.5)
         this.addChild(pretitle)
@@ -87,7 +117,8 @@ export class StartScene extends Scene {
                         .duration(600)
                         .delay(index * 150)
                         .easing(Easing.Back.InOut)
-                        .onComplete(index === this.titleLetters.length -1 ? resolve : () => {})
+                        .onComplete(index === this.titleLetters.length - 1 ? resolve : () => {
+                        })
                         .start()
                 }
             }

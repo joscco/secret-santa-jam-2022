@@ -42,8 +42,8 @@ export class Fruit extends Container {
         this.addChild(this.sprite, this.liveBar)
     }
 
-    update(removeFunction: (fruit: Fruit) => void) {
-        this.points = Math.max(this.points - this.eaters.length * 0.05, 0)
+    update(deltaTime: number, removeFunction: (fruit: Fruit) => void) {
+        this.points = Math.max(this.points - this.eaters.length * 0.05 * deltaTime, 0)
         this.liveBar.setPoints(this.points)
         this.liveBar.setRatio(this.points / this.initialPoints)
         if (this.points === 0 && !this.dead) {

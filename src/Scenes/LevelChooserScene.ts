@@ -17,7 +17,7 @@ export class LevelChooserScene extends Scene {
         this.app = app
 
         this.background = new Sprite(Texture.WHITE)
-        this.background.tint = 0x1f2d2f
+        this.background.tint = 0x348166
         this.background.height = GAME_HEIGHT
         this.background.width = GAME_WIDTH
         this.addChild(this.background)
@@ -31,7 +31,6 @@ export class LevelChooserScene extends Scene {
     private setUpTitle(): Text {
         let title = new Text("Choose a level", {
             fontFamily: "Futurahandwritten",
-            fontWeight: "bold",
             fontSize: 75,
             fill: 0xffffff
         })

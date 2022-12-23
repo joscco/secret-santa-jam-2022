@@ -49,8 +49,8 @@ export class Hedgehog extends Container {
         this.body.play()
     }
 
-    update() {
-        this.time++;
+    update(deltaTime: number) {
+        this.time += deltaTime;
         this.scale.set(
             1.0 + 0.1 * this.WIGGLE_SPEED * Math.sin(this.time * this.WIGGLE_SPEED),
             1.0 - 0.1 * this.WIGGLE_SPEED * Math.sin(this.time * this.WIGGLE_SPEED))

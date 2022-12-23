@@ -1016,6 +1016,21 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">assets/gameScreen/ui/tryAgainButton.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0,0</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>116,61,232,123</rect>
+                <key>scale9Paddings</key>
+                <rect>116,61,232,123</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">assets/levelScreen/level1Bug.png</key>
             <key type="filename">assets/levelScreen/level2Bug.png</key>
             <key type="filename">assets/levelScreen/level3Bug.png</key>
