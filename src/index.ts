@@ -75,7 +75,7 @@ const main = async () => {
     SCENE_MANAGER.add("startScene", new StartScene(App))
     LEVEL_SCREEN = new LevelChooserScene(App)
     SCENE_MANAGER.add("levelChooserScene", LEVEL_SCREEN)
-    SCENE_MANAGER.add("level_1", new Level(1))
+    SCENE_MANAGER.add("level_1", new Level(1, [200, 300, 400]))
 };
 
 function initApp() {

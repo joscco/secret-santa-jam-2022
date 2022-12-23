@@ -13,9 +13,9 @@ export abstract class EnemyGroup extends Container {
         this.addChild(...this.enemies)
     }
 
-    update(time: number) {
+    update(time: number, timeDelta: number) {
         this.enemies.forEach((enemy, i) => {
-            let newPos = this.move(i, time)
+            let newPos = this.move(i, time, timeDelta, enemy.position)
             let direction = vectorSub(newPos, enemy.position)
 
             if (this.type === "ANT") {
@@ -28,5 +28,5 @@ export abstract class EnemyGroup extends Container {
         })
     }
 
-    abstract move(index: number, time: number): Vector2D
+    abstract move(index: number, time: number, timeDelta: number, previousPosition: Vector2D): Vector2D
 }

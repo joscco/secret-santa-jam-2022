@@ -11,6 +11,7 @@ export class Enemy extends Container {
     private killRadius = 40
     private points: number = 5;
     private isDead: boolean = false
+    private eater: boolean = false
 
     readonly sprite: Sprite;
     private readonly deadpointText: Text;
@@ -76,5 +77,13 @@ export class Enemy extends Container {
 
     getPoints() {
         return this.points
+    }
+
+    isEater() {
+        return this.eater
+    }
+
+    setEater(value: boolean) {
+        this.eater = value
     }
 }

@@ -3,12 +3,14 @@ import {LEVEL_SCREEN} from "../index";
 
 export type GameState = {
     unlockedLevel: number,
-    preferredLanguage: Language
+    preferredLanguage: Language,
+    starsPerLevel: number[]
 }
 
 const INITIAL_GAMESTATE: GameState = {
     unlockedLevel: 1,
-    preferredLanguage: "en"
+    preferredLanguage: "en",
+    starsPerLevel: [0, 0, 0, 0]
 }
 
 export class GameData {
@@ -23,6 +25,7 @@ export class GameData {
         return {
             preferredLanguage: newState.preferredLanguage,
             unlockedLevel: Math.max(newState.unlockedLevel, oldState.unlockedLevel),
+            starsPerLevel: [0, 0, 0, 0].map((val, index) => Math.max(val, newState.starsPerLevel[index] ?? 0, oldState.starsPerLevel[index] ?? 0))
         }
     }
 
@@ -37,6 +40,14 @@ export class GameData {
     savePreferredLanguage(newLanguage: Language) {
         this.currentState.preferredLanguage = newLanguage
         this.saveGame(this.currentState)
+    }
+
+    saveStars(level: number, stars: number[], points: number) {
+        this.currentState.starsPerLevel[level - 1] = Math.max(...stars.map((point, index) => points >= point ? index + 1 : 0))
+        this.saveGame(this.currentState)
+
+        // Update Game
+        LEVEL_SCREEN.updateStars()
     }
 
     private saveGame(newState: GameState): void {
@@ -56,6 +67,10 @@ export class GameData {
 
     getPreferredLanguage() {
         return this.currentState.preferredLanguage;
+    }
+
+    getStars() {
+        return this.currentState.starsPerLevel
     }
 
     private loadGame(): GameState {

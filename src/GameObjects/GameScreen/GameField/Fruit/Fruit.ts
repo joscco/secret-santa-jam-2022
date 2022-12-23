@@ -6,6 +6,7 @@ import {distanceSegmentToPoint, Vector2D, vectorDistance} from "../../../../Gene
 import {OutlineFilter} from "@pixi/filter-outline";
 import Tweener from "../../../../General/Tweener";
 import {Easing} from "@tweenjs/tween.js";
+import {Enemy} from "../Enemies/Enemy";
 
 export type FruitType = "pear" | "apple" | "ruebe" | "banana"
 
@@ -20,21 +21,36 @@ export class Fruit extends Container {
     type: FruitType
     sprite: Sprite
     liveBar: FruitLiveBar
+    eaters: Enemy[] = []
     hitRadius = 40
+    initialPoints: number
     points: number
+    dead: boolean = false
 
     constructor(type: FruitType) {
         super();
 
         this.type = type
-        this.points = POINTMAP[type]
-            this.sprite = new Sprite(ASSET_MANAGER.getTextureAsset(this.type as TextureAssetID))
+        this.initialPoints = POINTMAP[type]
+        this.points = this.initialPoints
+        this.sprite = new Sprite(ASSET_MANAGER.getTextureAsset(this.type as TextureAssetID))
         this.sprite.anchor.set(0.5)
 
         this.liveBar = new FruitLiveBar()
         this.liveBar.position.set(-this.liveBar.width / 2, -65)
 
         this.addChild(this.sprite, this.liveBar)
+    }
+
+    update(removeFunction: (fruit: Fruit) => void) {
+        this.points = Math.max(this.points - this.eaters.length * 0.05, 0)
+        this.liveBar.setRatio(this.points / this.initialPoints)
+        if (this.points === 0 && !this.dead) {
+            this.moveToAndBlendOut({x: this.position.x, y: this.position.y})
+            this.eaters.forEach(eater => eater.setEater(false))
+            this.eaters = []
+            removeFunction(this)
+        }
     }
 
     isAffectedByPosition(hedgeHogPosition: Vector2D): boolean {
@@ -56,6 +72,7 @@ export class Fruit extends Container {
     }
 
     async moveToAndBlendOut(position: Vector2D) {
+        this.dead = true
         Tweener.of(this)
             .to({x: position.x, y: position.y})
             .duration(200)
@@ -82,4 +99,14 @@ export class Fruit extends Container {
         this.sprite.filters = []
     }
 
+    isDead() {
+        return this.dead
+    }
+
+    addEater(enemy: Enemy) {
+        if (!enemy.isEater()) {
+            this.eaters.push(enemy)
+            enemy.setEater(true)
+        }
+    }
 }

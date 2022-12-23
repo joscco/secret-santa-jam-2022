@@ -58,9 +58,10 @@ export class WinScreen extends Container {
         })
 
         this.nextButton = new WinScreenNextLevelButton(level + 1)
-        this.nextButton.position.set(150, 100)
+        this.nextButton.position.set(550, 0)
+
         this.backToLevelsButton = new WinScreenBackToLevelsButton()
-        this.backToLevelsButton.position.set(-150, 100)
+        this.backToLevelsButton.position.set(-550, 0)
 
         this.addChild(this.nextButton, this.backToLevelsButton)
     }

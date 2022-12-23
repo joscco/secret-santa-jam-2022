@@ -7,28 +7,39 @@ import {Bumper} from "../GameObjects/GameScreen/GameField/Bumper";
 import {Hole} from "../GameObjects/GameScreen/GameField/Hole";
 import {Polygon2D} from "../General/Polygon2D";
 import {AntCircle} from "../GameObjects/GameScreen/GameField/Enemies/AntCircle";
-import {GAME_HEIGHT, GAME_WIDTH} from "../index";
+import {GAME_DATA, GAME_HEIGHT, GAME_WIDTH} from "../index";
+import {AntMountain} from "../GameObjects/GameScreen/GameField/Enemies/AntMountain";
 
 export class Level extends Scene {
     level: number
-    points: number = 0
-    gameField: GameField
+    stars: number[]
+    points: number
+    gameField?: GameField
 
-    winScreen: WinScreen
-    uiOverlay: GameFieldUI
+    winScreen?: WinScreen
+    uiOverlay?: GameFieldUI
 
     fruits: Fruit[] = []
     holes: Hole[] = []
     bumpers: Bumper[] = []
 
-    blockPolygons: Polygon2D[]
-    antCircle: AntCircle
-    antCircle2: AntCircle
+    blockPolygons?: Polygon2D[]
+    antCircle?: AntCircle
+    antCircle2?: AntCircle
 
-    constructor(level: number) {
+    constructor(level: number, stars: number[]) {
         super();
+        this.points = 0
         this.level = level
+        this.stars = stars
+    }
 
+    beforeFadeIn() {
+        this.points = 0
+        this.initLevel()
+    }
+
+    private initLevel() {
         // Set fruits
         let apple = new Fruit("apple")
         apple.position.set(900, 600)
@@ -68,38 +79,41 @@ export class Level extends Scene {
         this.antCircle2 = new AntCircle(60)
         this.antCircle2.position.set(GAME_WIDTH / 2 - 150, GAME_HEIGHT / 2)
 
+        let antMountain = new AntMountain({x: 300, y: 600}, this.fruits, 200)
+
         this.gameField = new GameField(
-            this.blockPolygons, this.bumpers, this.holes, [this.antCircle, this.antCircle2], this.fruits,
+            this.blockPolygons, this.bumpers, this.holes, [this.antCircle, this.antCircle2, antMountain], this.fruits,
             (fruit: Fruit) => this.removeFruit(fruit), (amount: number) => this.addPoints(amount)
         )
 
-        this.uiOverlay = new GameFieldUI(1, [200, 300, 400], 0)
-        this.winScreen = new WinScreen(this.level, [200, 300, 400])
+        this.uiOverlay = new GameFieldUI(1, this.stars, 0)
+        this.winScreen = new WinScreen(this.level, this.stars)
 
         this.addChild(this.gameField, this.uiOverlay, this.winScreen)
     }
 
     update(delta: number) {
-        this.gameField.update()
+        this.gameField!.update()
     }
 
     removeFruit(fruit: Fruit) {
         this.fruits.remove(fruit)
-        this.addPoints(fruit.points)
         if (this.fruits.length === 0) {
-            this.gameField.disableInput()
-            this.winScreen.setPointsAndStars(this.points)
-            this.winScreen.blendIn()
+            this.gameField!.disableInput()
+            this.winScreen!.setPointsAndStars(this.points)
+            this.winScreen!.blendIn()
+            GAME_DATA.saveStars(this.level, this.stars, this.points)
+            GAME_DATA.saveUnlockedLevel(this.level + 1)
         }
     }
 
     addPoints(value: number) {
         this.points += value
-        this.uiOverlay.stars.forEach(star => {
+        this.uiOverlay!.stars.forEach(star => {
             if (star.points <= this.points) {
                 star.fillStar()
             }
         })
-        this.uiOverlay.pointsNumberText.text = `${this.points}`
+        this.uiOverlay!.pointsNumberText.text = `${this.points}`
     }
 }

@@ -1,15 +1,16 @@
 import Scene from "./Basics/Scene";
 import {Sprite, Text} from "pixi.js";
 import {LevelButton} from "../UI/Buttons/LevelButton";
-import {CustomApp, GAME_DATA, GAME_HEIGHT, GAME_WIDTH} from "../index";
+import {ASSET_MANAGER, CustomApp, GAME_DATA, GAME_HEIGHT, GAME_WIDTH, SCENE_MANAGER} from "../index";
 import {Texture} from "@pixi/core";
+import {ScalingButton, ScalingButtonImpl} from "../UI/Buttons/ScalingButton";
 
 export class LevelChooserScene extends Scene {
 
     background: Sprite
     title: Text
     levelButtons: LevelButton[]
-    // backButton: ScalingButton
+    backButton: ScalingButton
 
     constructor(app: CustomApp) {
         super();
@@ -23,11 +24,17 @@ export class LevelChooserScene extends Scene {
 
         this.title = this.setUpTitle()
         this.levelButtons = this.setUpLevelButtons()
-        // this.backButton = this.setUpBackButton()
+        this.updateStars()
+        this.backButton = this.setUpBackButton()
     }
 
     private setUpTitle(): Text {
-        let title = new Text("Choose a level", {fontFamily: "Futurahandwritten", fontWeight: "bold", fontSize: 75, fill: 0xffffff})
+        let title = new Text("Choose a level", {
+            fontFamily: "Futurahandwritten",
+            fontWeight: "bold",
+            fontSize: 75,
+            fill: 0xffffff
+        })
         title.anchor.set(0.5)
         title.position.set(GAME_WIDTH / 2, 125)
         this.addChild(title)
@@ -39,8 +46,8 @@ export class LevelChooserScene extends Scene {
 
         for (let n of [1, 2, 3, 4]) {
             let button = new LevelButton(n, n <= GAME_DATA.getUnlockedLevels())
-            button.x = 300 + ((n - 1) % 4) * 400
-            button.y = GAME_HEIGHT/2
+            button.x = 300 + ((n - 1) % 4) * 420
+            button.y = GAME_HEIGHT / 2
             this.addChild(button)
             buttons.push(button)
         }
@@ -52,5 +59,18 @@ export class LevelChooserScene extends Scene {
             button.setEnabled(button.level <= GAME_DATA.getUnlockedLevels())
             button.updateTexture()
         })
+    }
+
+    updateStars() {
+        this.levelButtons.forEach((button, index) => button.setStars(GAME_DATA.getStars()[index]))
+    }
+
+    setUpBackButton(): ScalingButton {
+        let button = new ScalingButtonImpl(ASSET_MANAGER.getTextureAsset("backButtonSymbol"), () => {
+            SCENE_MANAGER.startWithTransition("startScene")
+        })
+        button.position.set(100, 100)
+        this.addChild(button)
+        return button
     }
 }

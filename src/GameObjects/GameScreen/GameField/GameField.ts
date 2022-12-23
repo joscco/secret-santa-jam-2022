@@ -59,8 +59,7 @@ export class GameField extends Container {
 
     constructor(
         blockPolygons: Polygon2D[], bumpers: Bumper[], holes: Hole[], enemyGroups: EnemyGroup[], fruits: Fruit[],
-        removeFruit: (fruit: Fruit) => void, addPoints: (amount: number) => void)
-    {
+        removeFruit: (fruit: Fruit) => void, addPoints: (amount: number) => void) {
         super()
 
         this.removeFruit = removeFruit
@@ -96,11 +95,26 @@ export class GameField extends Container {
         this.polyWalls.cacheAsBitmap = true
     }
 
+    killEaters(fruit: Fruit) {
+        this.aliveEnemies = this.aliveEnemies.filter((val) => !fruit.eaters.contains(val))
+        fruit.eaters.forEach(enemy => {
+            this.addPoints(enemy.getPoints())
+            this.deadEnemies.push(enemy)
+            enemy.kill()
+        })
+        fruit.eaters = []
+    }
+
     update() {
-        this.updateTime()
         let mousePosition = this.inputManager.getMousePosition()
         this.hedgehog.update()
-        this.enemyGroups.map((enemy, index) => enemy.update(this.time + index * 0.6))
+        this.fruits.forEach(fruit =>
+            fruit.update((fruit: Fruit) => this.removeFruit(fruit))
+        )
+
+        let timeDelta = this.slowTime ? 0.3 : 1
+        this.time += timeDelta
+        this.enemyGroups.map((enemy, index) => enemy.update(this.time + index * 0.6, timeDelta))
 
         if (!this.inHookShooting) {
             if (this.inputManager.isMouseDown() && this.inputManager.isEnabled()) {
@@ -119,7 +133,7 @@ export class GameField extends Container {
     updatePreviewRope(mousePosition: Vector2D) {
         this.linePath = this.reflector.reflectLine([this.hedgehog.getGlobalPosition()], this.hedgehog.getGlobalPosition(), mousePosition)
 
-        // Check if Path hits fruit and highligh those
+        // Check if Path hits fruit and highlight those
         for (let fruit of this.fruits) {
             if (fruit.isHitByPath(this.linePath)) {
                 fruit.highlight()
@@ -186,6 +200,10 @@ export class GameField extends Container {
     }
 
     async hookPlayerTo(linePath: Vector2D[]): Promise<any> {
+        if (linePath.length <= 1) {
+            return
+        }
+
         this.hedgehog.setState("ROLLING")
         let val = {x: 0}
         let distances = linePath.slideWindow(2).map((points) => vectorDistance(points[0], points[1]))
@@ -194,6 +212,7 @@ export class GameField extends Container {
         let currentIndex = 0
         let lastFullDistance = 0
         let lastRelativeDistance = 0
+        let offset = {x: 0, y: 0}
 
         let valToPosition = (val: number) => {
             if (val > (lastFullDistance + distances[currentIndex]) / fullDistance) {
@@ -219,12 +238,11 @@ export class GameField extends Container {
             .duration(Math.sqrt(fullDistance) / PLAYER_HOOK_SPEED)
             .easing(Easing.Cubic.Out)
             .onUpdate((object) => {
-                if (!object || !object.x) {
-                    return
-                }
+                    if (!object || !object.x || !movingObject) {
+                        return
+                    }
 
-                if (movingObject) {
-                    movingObject.position = valToPosition(object.x)
+                    movingObject.position = vectorAdd(valToPosition(object.x), offset)
 
                     // Kill all enemies near enough
                     let indicesToRemove: number[] = []
@@ -242,6 +260,8 @@ export class GameField extends Container {
                     // Change to fruit near enough
                     for (let fruit of this.fruits) {
                         if (!(movingObject instanceof Fruit) && fruit.isAffectedByPosition(movingObject.position)) {
+                            offset = vectorSub(fruit.position, movingObject.position)
+                            this.killEaters(fruit)
                             SOUND_MANAGER.playBlub()
                             this.hedgehog.setState("IDLE")
                             movingObject = fruit
@@ -254,31 +274,33 @@ export class GameField extends Container {
                         for (let hole of this.holes) {
                             if (hole.isAffectedByPosition(movingObject.position)) {
                                 this.removeFruit(fruit)
+                                this.addPoints(Math.ceil(fruit.points))
                                 fruit.moveToAndBlendOut(hole.position)
                                 movingObject = undefined
                                 break
                             }
                         }
                     }
+
+                    if (object.x > 0.95) {
+                        this.hedgehog.setState("IDLE")
+                    }
+
+                    if (movingObject) {
+                        this.rope.setFirstPoint(vectorSub(movingObject.position, offset))
+                    } else {
+                        this.rope.setPath([])
+                    }
                 }
-
-                if (object.x > 0.95) {
-                    this.hedgehog.setState("IDLE")
-                }
-
-                if (movingObject) {
-                    this.rope.setFirstPoint(movingObject.position)
-                } else {
-                    this.rope.setPath([])
-                }
-
-
-            })
+            )
             .start()
+
             .promise()
     }
 
-    private initRandomField(): Container {
+    private initRandomField()
+        :
+        Container {
         // Start with basic background
         let container = new Container()
 
@@ -341,10 +363,6 @@ export class GameField extends Container {
                 this.polyWalls.addChild(sprite)
             }
         })
-    }
-
-    private updateTime() {
-        this.time += this.slowTime ? 0.3 : 1
     }
 
     disableInput() {
